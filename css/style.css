@@ -1,39 +1,93 @@
-/* css/style.css */
-body {
-    margin: 0;
-    overflow: hidden;
-    background-color: #0A081F; /* Nova cor de fundo principal */
-    font-family: 'Quicksand', sans-serif;
+:root {
+
+    --color-bg-light-mint: #e4fde1;       /* Lightest, for backgrounds */
+    --color-accent-teal: #6ba292;         /* Calm accent, good for borders, secondary buttons */
+    --color-highlight-yellow: #ffdc7c;    /* Softer yellow, for highlights or primary buttons */
+    --color-accent-coral: #ff9b71;        /* Warm accent, for interactive elements */
+    --color-strong-red: #dd614a;          /* Strongest color, for primary actions or important info */
+
+    /* Retained/Adjusted Neutrals & Text Colors */
+    --color-dark-text: #4A3F35;
+    --color-canvas-bg: #FFFFFF;
+    --color-light-grey: #D3D3D3;
+
+    /* Fonts (Keeping previous choices, adjust if needed) */
+    --font-headings: 'Lilita One', cursive;
+    --font-body: 'Quicksand', sans-serif;
+    --font-vocabulary: 'Nunito', sans-serif;
+
+    /* UI Styling */
+    --border-radius-soft: 8px;
+    --box-shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-canvas {
-    display: block;
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg-light-mint);
+    color: var(--color-dark-text);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    padding: 10px;
+}
+
+
+canvas#gameCanvas {
+    display: block;
+    border: 3px solid var(--color-accent-teal);
+    border-radius: var(--border-radius-soft);
+    background-color: var(--color-canvas-bg);
+    box-shadow: var(--box-shadow-light);
+}
+
 
 .controls {
     position: absolute;
     top: 20px;
     right: 20px;
     z-index: 100;
+    display: flex;
+    gap: 10px;
 }
 
 #music-toggle-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5em;
-    color: #A89CC8;
-    background-color: rgba(44, 42, 74, 0.5);
-    border: 2px solid #A89CC8;
+    width: 45px;
+    height: 45px;
+    font-size: 1.3em;
+    color: var(--color-strong-red);
+    background-color: rgba(228, 253, 225, 0.7);
+    border: 2px solid var(--color-accent-coral);
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-#music-toggle-btn:hover {
-    background-color: rgba(44, 42, 74, 0.8);
+#music-toggle-btn:hover,
+#music-toggle-btn:focus-visible {
+    background-color: rgba(255, 220, 124, 0.7); /* Semi-transparent yellow on hover */
     transform: scale(1.1);
-    color: #F5EFFF;
+    color: var(--color-accent-teal);
+    border-color: var(--color-accent-teal);
 }
+
 #music-toggle-btn.paused {
-    opacity: 0.5;
+    background-color: rgba(107, 162, 146, 0.3); /* Muted teal */
+    color: var(--color-light-grey);
+    border-color: var(--color-light-grey);
 }
