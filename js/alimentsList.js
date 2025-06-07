@@ -1,0 +1,21 @@
+export const alimentsList = [
+    { id: 1, imageFile: "jus_dorange", fr: "jus d'orange", pt: "suco de laranja", tip: "c'est une boisson à base de fruits", isClicked: false },
+    { id: 2, imageFile: "pao_de_queijo", fr: "pain au fromage", pt: "pão de queijo", tip: "c'est un petit pain au fromage brésilien", isClicked: false },
+    { id: 3, imageFile: "misto_quente", fr: "croque-monsieur brésilien", pt: "misto quente", tip: "c'est un sandwich grillé au jambon et fromage", isClicked: false },
+    { id: 4, imageFile: "ovo_mexido", fr: "œufs brouillés", pt: "ovo mexido", tip: "ce sont des œufs cuits et mélangés", isClicked: false },
+    { id: 5, imageFile: "cuscuz_nordestino", fr: "couscous brésilien (nord-est)", pt: "cuscuz (nordestino)", tip: "c'est un plat à base de semoule de maïs", isClicked: false },
+    { id: 6, imageFile: "tapioca_queijo_presunto", fr: "tapioca au fromage et jambon", pt: "tapioca com queijo e presunto", tip: "c'est une crêpe de tapioca farcie", isClicked: false },
+    { id: 7, imageFile: "queijo_minas", fr: "fromage Minas", pt: "queijo minas", tip: "c'est un type de fromage brésilien", isClicked: false },
+    { id: 8, imageFile: "pao_na_chapa_manteiga", fr: "pain grillé à la plaque avec du beurre", pt: "pão na chapa com manteiga", tip: "c'est du pain grillé avec du beurre", isClicked: false },
+    { id: 9, imageFile: "geleia_morango", fr: "confiture de fraise", pt: "geleia de morango", tip: "c'est une confiture de fruits rouges", isClicked: false },
+    { id: 10, imageFile: "bolinho_de_chuva", fr: "beignet de pluie", pt: "bolinho de chuva", tip: "c'est un petit beignet frit", isClicked: false },
+    { id: 11, imageFile: "torrada", fr: "toast", pt: "torrada", tip: "c'est du pain grillé", isClicked: false },
+    { id: 12, imageFile: "leite_achocolatado", fr: "lait chocolaté", pt: "leite achocolatado", tip: "c'est une boisson lactée au chocolat", isClicked: false },
+    { id: 13, imageFile: "cafe", fr: "café", pt: "café", tip: "c'est une boisson chaude à base de grains torréfiés", isClicked: false },
+    { id: 14, imageFile: "presunto_enrolado", fr: "tranches de jambon roulées", pt: "presunto (fatias enroladas)", tip: "ce sont des tranches de viande de porc fumée", isClicked: false },
+    { id: 15, imageFile: "bolo_de_limao", fr: "gâteau au citron", pt: "bolo de limão", tip: "c'est un gâteau parfumé au citron", isClicked: false },
+    { id: 16, imageFile: "tigela_cereais", fr: "bol de céréales", pt: "tigela de cereais", tip: "ce sont des céréales pour le petit-déjeuner", isClicked: false },
+    { id: 17, imageFile: "mingau_aveia_canela", fr: "bouillie d'avoine à la cannelle", pt: "mingau de aveia com canela", tip: "c'est une bouillie d'avoine chaude", isClicked: false },
+    { id: 18, imageFile: "tapioca_coco", fr: "tapioca à la noix de coco", pt: "tapioca recheada com coco", tip: "c'est une crêpe de tapioca à la noix de coco", isClicked: false },
+    { id: 19, imageFile: "ovos_mexidos_frigideira", fr: "œufs brouillés à la poêle", pt: "ovos mexidos na frigideira", tip: "ce sont des œufs cuits dans une poêle", isClicked: false }
+];

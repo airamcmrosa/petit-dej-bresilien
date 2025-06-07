@@ -1,8 +1,16 @@
 import {Footer} from "./footer.js";
+import {Game} from "./game.js";
 
 window.onload = function() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+
+    // let gameState = 'menu';
+    const game = new Game(canvas.width, canvas.height, ctx);
 
 
 
@@ -16,6 +24,13 @@ window.onload = function() {
     };
 
     const footer = new Footer(colors);
+
+    this.backgroundImage = new Image();
+    this.backgroundImage.src = './media/mesa-removebg-preview.png';
+    this.backgroundImage.addEventListener("load", (e) => {
+        ctx.drawImage(this.backgroundImage, 10, 10)
+    });
+
 
     function resize() {
         canvas.width = window.innerWidth;
@@ -98,13 +113,17 @@ window.onload = function() {
 
     function animate() {
 
+
         ctx.fillStyle = colors.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 
 
         // background.update();
         // background.draw(ctx);
         footer.draw(ctx);
+        ctx.drawImage(backgroundImage, 0, 10);
+        if(game) game.draw(ctx);
         //
         // if (gameState === 'menu') {
         //     menu.draw(ctx);
