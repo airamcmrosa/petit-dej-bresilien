@@ -19,12 +19,11 @@ export class Footer {
         const paddingBottom = 20;
         const footerAreaHeight = this.fontSize + 10;
         const footerAreaY = canvasHeight - footerAreaHeight - paddingBottom;
-        const footerAreaWidth = canvasWidth;
 
         this.footerArea = {
-            width: footerAreaWidth,
+            width: canvasWidth,
             height: footerAreaHeight,
-            x: 0,
+            x:canvasWidth/2,
             y: footerAreaY,
             text: this.text
         };
@@ -39,7 +38,7 @@ export class Footer {
         ctx.textBaseline = 'bottom';
         ctx.fillText(
             this.footerArea.text,
-            this.footerArea.x + this.footerArea.width / 2,
+            this.footerArea.width / 2,
             this.footerArea.y + this.footerArea.height - (this.footerArea.height - this.fontSize) / 2
         );
     }

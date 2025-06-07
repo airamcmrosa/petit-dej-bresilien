@@ -1,18 +1,13 @@
 import {Footer} from "./footer.js";
 import {Game} from "./game.js";
+import {GamePanel} from "./gamePanel.js";
 
 window.onload = function() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
 
     // let gameState = 'menu';
-    const game = new Game(canvas.width, canvas.height, ctx);
-
-
 
     const colors = {
         backgroundColor: '#e4fde1',
@@ -24,6 +19,9 @@ window.onload = function() {
     };
 
     const footer = new Footer(colors);
+    const gamePanel = new  GamePanel(canvas.width, canvas.height, ctx);
+
+    const game = new Game(canvas.width, canvas.height, ctx);
 
     this.backgroundImage = new Image();
     this.backgroundImage.src = './media/mesa-removebg-preview.png';
@@ -39,6 +37,11 @@ window.onload = function() {
 
         // background.resize(canvas.width, canvas.height);
         footer.resize(canvas.width, canvas.height);
+        if(footer.footerArea) {
+            console.log("resizing game panel");
+            gamePanel.resize(canvas.width, canvas.height, footer);
+        }
+
 
 
         // if(gameState === 'menu') {
