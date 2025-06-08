@@ -1,3 +1,4 @@
+
 export class GamePanel {
     constructor(colors) {
         this.colors = colors;
@@ -9,132 +10,148 @@ export class GamePanel {
         this.alimentsListTextRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
         this.tableRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
 
-        // this.answerOptionRects = [];
+        this.alimentListImage = new Image();
+        this.alimentListImage.src = './media/papel.svg';
+
+        this.tableImage = new Image();
+        this.tableImage.src = './media/mesa.svg';
+
+        this.backgroundImage = new Image();
+        this.backgroundImage.src = './media/piso.svg';
     }
 
     resize(canvasWidth, canvasHeight, footer) {
         // --- Painel Principal ---
-        const minPanelWidth = 450;
-        const minPanelHeight = 450;
+        if (!footer.footerArea || !footer.footerArea.height) return;
+        const topMargin = 50;
 
-        console.log("entering resize")
+        // The panel takes the full canvas width and the height remaining after the footer.
+        this.panelRect.width = canvasWidth;
+        this.panelRect.height = canvasHeight - topMargin - footer.footerArea.height;
+        this.panelRect.x = 0;
+        this.panelRect.y = topMargin;
 
-        if(!footer.height) return;
+        const padding = canvasWidth * 0.02; // Use a responsive padding.
 
+        // --- Top Row Calculations (gameText and timeDisplay) ---
+        const topRowY = this.panelRect.y + padding;
+        const topRowHeight = this.panelRect.height * 0.1;
 
-        this.panelRect.width = Math.max(minPanelWidth, canvasWidth);
-        this.panelRect.height = Math.max(minPanelHeight, canvasHeight) - footer.footerArea.height;
-        this.panelRect.x = canvasWidth - this.panelRect.width;
-        this.panelRect.y = canvasHeight - this.panelRect.height;
+        // Calculate available width for elements, considering 3 padding gaps (left, middle, right).
+        const availableWidth = this.panelRect.width - (padding * 3);
+        const rightDisplayWidth = availableWidth;
+        const timeDisplayWidth = availableWidth * 0.3; // 30% for the time display.
+        const gameTextWidth = availableWidth * 0.7;    // 70% for the game text.
 
-        console.log("values after adding footer to panel = ", JSON.parse(JSON.stringify(this.panelRect)));
-
-
-        const padding = this.panelRect.width * 0.05;
-
+        // Define gameTextRect (left side of top row).
         this.gameTextRect = {
             x: this.panelRect.x + padding,
-            y: this.panelRect.y + padding,
-            width: this.panelRect.width - this.timeDisplayArea.width - (padding * 2),
-            height: this.panelRect.height * 0.1,
-            cornerRadius : 15,
+            y: topRowY,
+            width: gameTextWidth,
+            height: topRowHeight,
+            cornerRadius: 15
         };
 
+        const bottomRowY = topRowY + topRowHeight + padding;
+        const bottomRowHeight = this.panelRect.height - topRowHeight - (padding * 3);
 
+        this.rightDisplayArea = {
+            x: this.gameTextRect.x + this.gameTextRect.width + padding,
+            y: 0,
+            width: rightDisplayWidth,
+            height: canvasHeight,
+            cornerRadius: 15
+        };
+
+        // Define timeDisplayArea (right side of top row).
         this.timeDisplayArea = {
-            ...this.timeDisplayArea,
-            width: this.panelRect.width * 0.3 - padding,
-            height: this.gameTextRect.height,
-            x: this.panelRect.x + this.gameTextRect - padding,
+            x: this.gameTextRect.x + this.gameTextRect.width + padding,
+            y: topRowY, // Same 'y' as gameTextRect for alignment.
+            width: timeDisplayWidth,
+            height: topRowHeight, // Same 'height' as gameTextRect.
+            cornerRadius: 15
         };
 
-        // Área da lista de alimentos a serem encontrados na mesa (Abaixo do display de tempo)
-        const alimentsListTextRectY = this.gameTextRect.y + this.gameTextRect.height + padding;
-        this.alimentsListTextRect = {
-            x: this.timeDisplayArea.x + padding,
-            y: alimentsListTextRectY,
-            width: this.timeDisplayArea.width,
-            height: this.panelRect.height - this.gameTextRect - padding,
-            cornerRadius : 15,
-        };
 
-        const tableRectY = this.gameTextRect.y + this.gameTextRect.height + padding;
+        // Define tableRect (left side of bottom row).
         this.tableRect = {
-            x: this.gameTextRect.x + padding,
-            y: tableRectY,
-            width: this.gameTextRect.width,
-            height: this.panelRect.height - this.gameTextRect - padding,
-            cornerRadius : 15,
+            x: this.gameTextRect.x, // Align horizontally with gameTextRect above.
+            y: bottomRowY,
+            width: this.gameTextRect.width, // Same width as gameTextRect.
+            height: bottomRowHeight,
+            cornerRadius: 15
         };
 
+        // Define alimentsListTextRect (right side of bottom row).
+        this.alimentsListTextRect = {
+            x: this.timeDisplayArea.x, // Align horizontally with timeDisplayArea above.
+            y: bottomRowY,
+            width: this.timeDisplayArea.width, // Same width as timeDisplayArea.
+            height: bottomRowHeight,
+            cornerRadius: 15
+        };
 
-
-        // this.answerOptionRects = [];
-        // for (let i = 0; i < 3; i++) {
-        //     this.answerOptionRects.push({
-        //         x: this.panelRect.x + padding,
-        //         y: answerOptionStartY + i * (answerOptionHeight + gapBetweenAnswers),
-        //         width: answerOptionWidth,
-        //         height: answerOptionHeight,
-        //         cornerRadius: 15
-        //     });
-        // }
 
     }
 
     draw(ctx) {
         if (!this.panelRect.width) return;
-        console.log("tem panelRect:", JSON.parse(JSON.stringify(this.panelRect)));
 
+        // --- Draw Main Panel Background ---
         ctx.save();
+        ctx.drawImage(this.backgroundImage, 0, 0, this.panelRect.width, this.rightDisplayArea.height);
 
-        console.log("drawing panel rect")
-
-        ctx.shadowColor = this.colors.highlight1;
-        ctx.shadowBlur = 20;
-        ctx.fillStyle = this.colors.backgroundColor;
-        ctx.beginPath();
-        ctx.roundRect(this.panelRect.x, this.panelRect.y, this.panelRect.width, this.panelRect.height);
-        ctx.fill();
-        ctx.shadowBlur = 0;
         ctx.restore();
-        console.log("draw ok panel rect")
-
-        // --- Desenha placeholders para as áreas internas com bordas arredondadas ---
-
-        ctx.strokeStyle = this.colors.borderColor;
-        ctx.lineWidth = 2;
-
-        // Placeholder para game text area
-        ctx.beginPath();
-        ctx.roundRect(this.gameTextRect.x, this.gameTextRect.y, this.gameTextRect.width, this.gameTextRect.height,
-            this.gameTextRect.cornerRadius);
-        ctx.stroke();
-
-        // Placeholder para timeDisplayArea
-        ctx.beginPath();
-        ctx.roundRect(this.timeDisplayArea.x, this.timeDisplayArea.y, this.timeDisplayArea.width,
-            this.timeDisplayArea.height, this.timeDisplayArea.cornerRadius);
-        ctx.stroke();
-
-        // Placeholder para aliments list
-        ctx.beginPath();
-        ctx.roundRect(this.alimentsListTextRect.x, this.alimentsListTextRect.y, this.alimentsListTextRect.width,
-            this.alimentsListTextRect.height, this.alimentsListTextRect.cornerRadius);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.roundRect(this.tableRect.x, this.tableRect.y, this.tableRect.width,
-            this.tableRect.height, this.tableRect.cornerRadius);
-        ctx.stroke();
 
 
+        if (this.gameTextRect && this.gameTextRect.width > 0) {
+            ctx.shadowColor = this.colors.backgroundColor;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = this.colors.backgroundColor;
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.roundRect(this.gameTextRect.x, this.gameTextRect.y, this.gameTextRect.width, this.gameTextRect.height,
+                this.gameTextRect.cornerRadius);
+            ctx.fill();
+        }
 
-        // // Placeholders para AnswerOptionRects
-        // this.answerOptionRects.forEach(rect => {
-        //     ctx.beginPath();
-        //     ctx.roundRect(rect.x, rect.y, rect.width, rect.height, rect.cornerRadius);
-        //     ctx.stroke();
-        // });
+        // Placeholder for timeDisplayArea
+        if(this.rightDisplayArea) {
+            ctx.shadowColor = this.colors.backgroundColor;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = this.colors.backgroundColor;
+            ctx.globalAlpha = 0.55;
+            ctx.beginPath();
+            ctx.roundRect(this.timeDisplayArea.x, this.rightDisplayArea.y, this.rightDisplayArea.width,
+                this.rightDisplayArea.height, this.timeDisplayArea.cornerRadius);
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.restore();
+
+        }
+        if (this.timeDisplayArea && this.timeDisplayArea.width > 0) {
+
+            ctx.beginPath();
+            ctx.roundRect(this.timeDisplayArea.x, this.timeDisplayArea.y, this.timeDisplayArea.width,
+                this.timeDisplayArea.height, this.timeDisplayArea.cornerRadius);
+            ctx.fill();
+        }
+
+        // Placeholder for aliments list
+        if (this.alimentsListTextRect && this.alimentsListTextRect.width > 0) {
+            ctx.globalAlpha = 1;
+            // ctx.beginPath();
+            // ctx.roundRect(this.alimentsListTextRect.x, this.alimentsListTextRect.y, this.alimentsListTextRect.width,
+            //     this.alimentsListTextRect.height, this.alimentsListTextRect.cornerRadius);
+            // ctx.stroke();
+
+            ctx.drawImage(this.alimentListImage, this.alimentsListTextRect.x + (this.alimentsListTextRect.width /2)*0.1, this.alimentsListTextRect.y,
+                this.alimentsListTextRect.width, this.alimentsListTextRect.height);
+
+        }
+        if (this.tableRect && this.tableRect.width > 0) {
+            ctx.drawImage(this.tableImage, this.tableRect.x, this.tableRect.y, this.tableRect.width, this.tableRect.height);
+
+        }
     }
 }

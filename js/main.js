@@ -19,7 +19,7 @@ window.onload = function() {
     };
 
     const footer = new Footer(colors);
-    const gamePanel = new  GamePanel(canvas.width, canvas.height, ctx);
+    const gamePanel = new  GamePanel(colors, canvas.width, canvas.height, ctx);
 
     const game = new Game(canvas.width, canvas.height, ctx);
 
@@ -124,8 +124,13 @@ window.onload = function() {
 
         // background.update();
         // background.draw(ctx);
+
+        if(gamePanel) {
+            gamePanel.draw(ctx);
+        } else {
+            console.log("gamePanel not ready")
+        }
         footer.draw(ctx);
-        ctx.drawImage(backgroundImage, 0, 10);
         if(game) game.draw(ctx);
         //
         // if (gameState === 'menu') {
