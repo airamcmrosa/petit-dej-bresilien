@@ -1,10 +1,12 @@
 import {Footer} from "./footer.js";
 import {Game} from "./game.js";
 import {GamePanel} from "./gamePanel.js";
+import {SoundManager} from "./soundManager.js";
 
 window.onload = function() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    let mousePos = { x: 0, y: 0 };
 
 
     let gameState = 'playing';
@@ -21,13 +23,17 @@ window.onload = function() {
     const footer = new Footer(colors);
     const gamePanel = new  GamePanel(colors, canvas.width, canvas.height, ctx);
 
-    const game = new Game(colors, canvas.width, canvas.height, ctx);
+    const soundManager = new SoundManager(
+        {
+            click: 'card-flip',
+            match: 'match-sound',
+            error: 'error-sound'
+        },
+        'background-music',
+        'music-toggle-btn'
+    );
 
-    this.backgroundImage = new Image();
-    this.backgroundImage.src = './media/mesa-removebg-preview.png';
-    this.backgroundImage.addEventListener("load", (e) => {
-        ctx.drawImage(this.backgroundImage, 10, 10)
-    });
+    const game = new Game(canvas.width, canvas.height, colors, soundManager);
 
 
     function resize() {
@@ -79,6 +85,12 @@ window.onload = function() {
         return x >= button.x && x <= button.x + button.width &&
             y >= button.y && y <= button.y + button.height;
     }
+    function updateMousePosition(event) {
+        const rect = canvas.getBoundingClientRect();
+        mousePos.x = event.clientX - rect.left;
+        mousePos.y = event.clientY - rect.top;
+    }
+    canvas.addEventListener('mousemove', updateMousePosition);
 
     function handleInteraction(event) {
         event.preventDefault();
@@ -135,6 +147,7 @@ window.onload = function() {
         footer.draw(ctx);
 
         if(game) {
+            game.update(mousePos);
             game.draw(ctx, gamePanel);
         }
         //

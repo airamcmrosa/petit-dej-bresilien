@@ -1,7 +1,10 @@
 import { alimentsList } from "./alimentsList.js"
+
 export class Game {
-    constructor(canvasWidth, canvasHeight, colors) {
+    constructor(canvasWidth, canvasHeight, colors, soundManager) {
+        // this.onGameOver = onGameOver;
         this.colors = colors;
+        this.soundManager = soundManager;
         this.allAliments = [...alimentsList];
         this.gameAliments = [];
         this.deckCorrectOptions = [];
@@ -18,14 +21,14 @@ export class Game {
         const cardAliments = [];
         this.gameAliments.forEach((gameAliment, index) => {
             cardAliments.push({
-                ...gameAliment, isFound: false, isCorrect: false
+                ...gameAliment, isFound: false, isCorrect: false, isHovering: false
             });
         });
         this.deckCorrectOptions = cardAliments.slice(5, 10);
 
         const correctIds = new Set(this.deckCorrectOptions.map(card => card.id));
 
-        // --- Step 4: Loop through the main gameAliments deck and update the flag ---
+
         cardAliments.forEach(card => {
             if (correctIds.has(card.id)) {
                 card.isCorrect = true;
@@ -81,6 +84,14 @@ export class Game {
         });
     }
 
+    update(mousePos) {
+        this.gameAliments.forEach(card => {
+
+            card.isHovering = mousePos.x >= card.x && mousePos.x <= card.x + card.width &&
+                mousePos.y >= card.y && mousePos.y <= card.y + card.height;
+        });
+    }
+
 
     handleInput(x, y) {
         console.log("handling input");
@@ -94,19 +105,19 @@ export class Game {
                     x >= card.x && x <= card.x + card.width &&
                     y >= card.y && y <= card.y + card.height) {
 
-                    // this.soundManager.play('click');
+
 
                     card.isClicked = true;
+                    this.soundManager.playEffect('click');
                     this.clickedCards.push(card);
                     console.log(JSON.parse(JSON.stringify(card)));
-                    this.checkAnswer();
                     break;
                 }
             }
 
             // If two cards are now flipped, check for a match
-            if (this.clickedCards.length === 2) {
-                setTimeout(() => this.checkAnswer(), 1000);
+            if (this.clickedCards.length === 1) {
+                setTimeout(() => this.checkAnswer(), 500);
             }
     }
 
@@ -117,21 +128,18 @@ export class Game {
 
         if (card1.isCorrect) {
 
-            // this.soundManager.play('match');
             card1.isFound = true;
-            console.log("card was found", JSON.parse(JSON.stringify(card1)));
-
+            this.soundManager.playEffect('match');
 
             const allMatched = this.deckCorrectOptions.every(card => card.isFound);
             if (allMatched) {
-                // Notifica o main.js que o jogo acabou
                 // setTimeout(() => this.onGameOver(), 500);
             }
 
         } else {
 
             card1.isClicked = false;
-            console.log(JSON.parse(JSON.stringify(card1)));
+            this.soundManager.playEffect('error');
         }
 
         this.clickedCards = [];
@@ -202,7 +210,20 @@ export class Game {
             }
 
             ctx.save();
-            if (card.isClicked && card.isCorrect) {
+            const centerX = card.x + card.width / 2;
+            const centerY = card.y + card.height / 2;
+            ctx.translate(centerX, centerY);
+
+            if (card.isClicked) {
+                ctx.scale(0.8, 0.8);
+            } else if (card.isHovering) {
+                ctx.scale(1.1, 1.1);
+            }
+
+            ctx.translate(-centerX, -centerY);
+
+
+            if (card.isFound && card.isCorrect) {
                 ctx.globalAlpha = 0.5;
             }
 
@@ -230,7 +251,7 @@ export class Game {
 
         const fontSizeGameText = textRect.height * 0.5;
         ctx.font = `500 ${fontSizeGameText}px 'Lilita One', cursive`;
-        ctx.fillStyle = this.colors.alertColor;
+        ctx.fillStyle = this.colors.darkTextForCanvas;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         ctx.fillText(this.gameTextInstructions.text, this.gameTextInstructions.x, this.gameTextInstructions.y)
@@ -243,7 +264,7 @@ export class Game {
         const listRect = gamePanel.alimentsListTextRect;
         const fontSize = listRect.height * 0.035;
         ctx.font = `400 ${fontSize}px 'Lilita One', cursive`;
-        ctx.fillStyle = this.colors.alertColor;
+        ctx.fillStyle = this.colors.darkTextForCanvas;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
 
