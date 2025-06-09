@@ -51,7 +51,8 @@ export class Timer {
             this.stop();
             // Execute the callback function if it exists.
             if (this.onComplete) {
-                this.onComplete();
+
+                this.onComplete('noMoreTime');
             }
         }
     }

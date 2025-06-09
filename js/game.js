@@ -1,14 +1,16 @@
 import { alimentsList } from "./alimentsList.js"
 
 export class Game {
-    constructor(canvasWidth, canvasHeight, colors, soundManager) {
-        // this.onGameOver = onGameOver;
+    constructor(onGameOverCallback, canvasWidth, canvasHeight, colors, soundManager) {
+        this.onGameOver = onGameOverCallback;
         this.colors = colors;
         this.soundManager = soundManager;
         this.allAliments = [...alimentsList];
         this.gameAliments = [];
         this.deckCorrectOptions = [];
         this.positionsCalculated = false;
+
+        this.gameShouldEndAllFound = false;
 
         this.initializeGameAliments();
         this.loadImages();
@@ -82,6 +84,13 @@ export class Game {
             image.src = `media/${card.imageFile}.png`;
             // console.log(`Attempting to load: ${image.src}`);
         });
+
+
+        this.translateFlag = new Image();
+        this.translateFlag.src = `media/brazil-flag-round-circle-icon.svg`;
+
+
+
     }
 
     update(mousePos) {
@@ -133,7 +142,9 @@ export class Game {
 
             const allMatched = this.deckCorrectOptions.every(card => card.isFound);
             if (allMatched) {
-                // setTimeout(() => this.onGameOver(), 500);
+                this.gameShouldEndAllFound = true;
+                this.onGameOver('all_found');
+
             }
 
         } else {
@@ -304,10 +315,14 @@ export class Game {
             const textY = listRect.y + textPadding.top + (index * lineHeight);
             ctx.fillText(text, textX, textY);
 
+            const metrics = ctx.measureText(text);
+            const textWidth = metrics.width;
+            const lineY = textY + (fontSize / 2);
+
+
+
             if(option.isFound){
-                const metrics = ctx.measureText(text);
-                const textWidth = metrics.width;
-                const lineY = textY + (fontSize / 2);
+
                 ctx.strokeStyle = '#dd614a';
                 ctx.lineWidth = 3;
                 ctx.lineCap = 'round';
@@ -315,6 +330,9 @@ export class Game {
                 ctx.moveTo(textX, lineY);
                 ctx.lineTo(textX + textWidth, lineY );
                 ctx.stroke();
+            }
+            if(this.translateFlag) {
+                ctx.drawImage(this.translateFlag, textX + textWidth + (textWidth*0.1), textY, fontSize , fontSize)
             }
         });
     }

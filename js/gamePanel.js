@@ -22,7 +22,8 @@ export class GamePanel {
 
     resize(canvasWidth, canvasHeight, footer) {
         // --- Painel Principal ---
-        if (!footer.footerArea || !footer.footerArea.height) return;
+
+        if (!footer) return;
         const topMargin = 50;
 
         // The panel takes the full canvas width and the height remaining after the footer.

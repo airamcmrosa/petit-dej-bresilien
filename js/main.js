@@ -2,6 +2,7 @@ import {Footer} from "./footer.js";
 import {Game} from "./game.js";
 import {GamePanel} from "./gamePanel.js";
 import {SoundManager} from "./soundManager.js";
+import {EndScreen} from "./endScreen.js";
 import { Timer } from "./timer.js";
 
 window.onload = function() {
@@ -10,15 +11,17 @@ window.onload = function() {
     let mousePos = { x: 0, y: 0 };
 
 
+    const timer = new Timer(60, (reason) => {
+        console.log("Time's up! Game Over. Reason:", reason);
 
-    const timer = new Timer(90, () => {
-        console.log("Time's up! Game Over.");
-        // Here you would set your game state to 'gameOver'.
-        // For example: gameState = 'gameOver';
+        gameState = 'gameOver';
+        endScreen.setGameOverInfo(reason);
+        resize();
     });
 
     const colors = {
         backgroundColor: '#e4fde1',
+        overlay: 'rgba(8,31,21,0.85)',
         borderColor: '#6ba292',
         highlight1: '#ffdc7c',
         accentColor: '#ff9b71',
@@ -39,7 +42,9 @@ window.onload = function() {
         'music-toggle-btn'
     );
 
-    const game = new Game(canvas.width, canvas.height, colors, soundManager, timer);
+    const endScreen = new EndScreen(colors, startGame, soundManager);
+
+    let game = null;
     let gameState = 'playing';
 
 
@@ -50,49 +55,43 @@ window.onload = function() {
 
         // background.resize(canvas.width, canvas.height);
         footer.resize(canvas.width, canvas.height);
-        if(footer.footerArea) {
-            console.log("resizing game panel");
-            gamePanel.resize(canvas.width, canvas.height, footer);
-        }
 
-
-
-        // if(gameState === 'menu') {
-            // console.log("resize ok em", gameState)
+        if(gameState === 'menu') {
+            console.log("resize ok em", gameState)
             // menu.resize(canvas.width, canvas.height);
-        // } else if (gameState === 'playing' && game) {
-        //     // console.log("resize ok do", gameState)
-        //     quizPanel.resize(canvas.width, canvas.height);
-        //     game.resize(quizPanel);
-        //     if (quizPanel.heartsArea && quizPanel.heartsArea.width > 0) {
-        //         heartsDisplay.resize(quizPanel.heartsArea);
-        //     } else {
-        //         console.warn("main.js resize: quizPanel.heartsArea NÃO está pronto ou tem largura zero. Não chamando heartsDisplay.resize.");
-        //     }
-        //     if (quizPanel.questionCounterArea && quizPanel.questionCounterArea.width > 0) {
-        //         progressDisplay.resize(quizPanel.questionCounterArea);
-        //     }
-        // } else if (gameState === 'gameOver') {
-        //     // console.log("resize ok do", gameState)
-        //     quizPanel.resize(canvas.width, canvas.height);
-        //     if (game) {
-        //         game.resize(quizPanel);
-        //     }
-        //     endScreen.resize(canvas.width, canvas.height);
-        // } else {
-        //     console.warn("rezise not working");
-        // }
+        } else if (gameState === 'playing' && game) {
+            console.log("resize of gamestate playing", gameState)
+            gamePanel.resize(canvas.width, canvas.height, footer);
+
+        } else if (gameState === 'gameOver') {
+            // console.log("resize ok do", gameState)
+            gamePanel.resize(canvas.width, canvas.height);
+            endScreen.resize(canvas.width, canvas.height);
+        } else {
+            console.warn("rezise not working");
+        }
     }
 
     window.addEventListener('resize', resize);
     resize();
 
+
     function startGame() {
-        // Here you would reset your game state.
-        // game.reset();
+        console.log("start game running!");
         timer.start();
-        // gameState = 'playing';
+        game = new Game((reason) => {
+            console.log("Callback de fim de jogo chamado!");
+            gameState = 'gameOver';
+            if (endScreen) {
+                endScreen.setGameOverInfo(reason || 'noMoreTime');
+            }
+            resize();
+        }, canvas.width, canvas.height, colors, soundManager, timer);
+
+        gameState = 'playing';
+        resize();
     }
+
 
     startGame();
 
@@ -129,12 +128,10 @@ window.onload = function() {
         // } else
         if (gameState === 'playing' && game) {
             game.handleInput(mouseX, mouseY);
-        }
+        } else if (gameState === 'gameOver') {
 
-        // } else if (gameState === 'gameOver') {
-        //
-        //     endScreen.handleInput(mouseX, mouseY);
-        // }
+            endScreen.handleInput(mouseX, mouseY);
+        }
         if (footer.footerArea && footer.footerArea.width && isClickInside(footer.footerArea, mouseX, mouseY)) {
             footer.handleInput(mouseX, mouseY);
         }
@@ -150,44 +147,34 @@ window.onload = function() {
         ctx.fillStyle = colors.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-
-
-        // background.update();
-        // background.draw(ctx);
-
         if(gamePanel) {
             gamePanel.draw(ctx);
         } else {
             console.log("gamePanel not ready")
         }
-        footer.draw(ctx);
 
-        if(game) {
+
+        if (gameState === 'menu') {
+            // menu.draw(ctx);
+        } else if (gameState === 'playing' && game) {
             game.update(mousePos);
+            gamePanel.draw(ctx);
             timer.update();
             game.draw(ctx, gamePanel, timer);
+
+        } else if (gameState === 'gameOver') {
+
+            if (game) game.draw(ctx, gamePanel, timer);
+            if (endScreen) {
+                console.log("[Main.animate] Desenhando EndScreen. Reason:", endScreen.reasonForGameOver);
+                endScreen.draw(ctx, canvas.width, canvas.height);
+            } else {
+                console.error("[Main.animate] Instância de EndScreen não encontrada para desenhar!");
+            }
+
+
         }
-        //
-        // if (gameState === 'menu') {
-        //     menu.draw(ctx);
-        // } else if (gameState === 'playing' && game) {
-        //     quizPanel.draw(ctx);
-        //     heartsDisplay.draw(ctx);
-        //     if(progressDisplay) progressDisplay.draw(ctx);
-        //     game.draw(ctx, quizPanel);
-        //
-        // } else if (gameState === 'gameOver') {
-        //
-        //     if (game) game.draw(ctx, quizPanel);
-        //     if (endScreen) {
-        //         console.log("[Main.animate] Desenhando EndScreen. Reason:", endScreen.reasonForGameOver);
-        //         endScreen.draw(ctx, canvas.width, canvas.height);
-        //     } else {
-        //         console.error("[Main.animate] Instância de EndScreen não encontrada para desenhar!");
-        //     }
-
-
-        // }
+        footer.draw(ctx);
         requestAnimationFrame(animate);
 
     }
