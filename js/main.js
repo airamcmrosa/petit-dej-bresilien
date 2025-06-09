@@ -7,7 +7,7 @@ window.onload = function() {
     const ctx = canvas.getContext('2d');
 
 
-    // let gameState = 'menu';
+    let gameState = 'playing';
 
     const colors = {
         backgroundColor: '#e4fde1',
@@ -21,7 +21,7 @@ window.onload = function() {
     const footer = new Footer(colors);
     const gamePanel = new  GamePanel(colors, canvas.width, canvas.height, ctx);
 
-    const game = new Game(canvas.width, canvas.height, ctx);
+    const game = new Game(colors, canvas.width, canvas.height, ctx);
 
     this.backgroundImage = new Image();
     this.backgroundImage.src = './media/mesa-removebg-preview.png';
@@ -98,9 +98,11 @@ window.onload = function() {
         //     if (soundManager) soundManager.playEffect('click');
         //     startGame();
         // }
-        // } else if (gameState === 'playing' && game) {
-        //     game.handleInput(mouseX, mouseY);
-        //
+        // } else
+        if (gameState === 'playing' && game) {
+            game.handleInput(mouseX, mouseY);
+        }
+
         // } else if (gameState === 'gameOver') {
         //
         //     endScreen.handleInput(mouseX, mouseY);
@@ -131,7 +133,10 @@ window.onload = function() {
             console.log("gamePanel not ready")
         }
         footer.draw(ctx);
-        if(game) game.draw(ctx);
+
+        if(game) {
+            game.draw(ctx, gamePanel);
+        }
         //
         // if (gameState === 'menu') {
         //     menu.draw(ctx);

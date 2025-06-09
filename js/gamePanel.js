@@ -77,8 +77,8 @@ export class GamePanel {
         this.tableRect = {
             x: this.gameTextRect.x, // Align horizontally with gameTextRect above.
             y: bottomRowY,
-            width: this.gameTextRect.width, // Same width as gameTextRect.
-            height: bottomRowHeight,
+            width: this.gameTextRect.width + 20, // Same width as gameTextRect.
+            height: bottomRowHeight + 50,
             cornerRadius: 15
         };
 
