@@ -2,6 +2,7 @@ import {Footer} from "./footer.js";
 import {Game} from "./game.js";
 import {GamePanel} from "./gamePanel.js";
 import {SoundManager} from "./soundManager.js";
+import { Timer } from "./timer.js";
 
 window.onload = function() {
     const canvas = document.getElementById('gameCanvas');
@@ -9,7 +10,12 @@ window.onload = function() {
     let mousePos = { x: 0, y: 0 };
 
 
-    let gameState = 'playing';
+
+    const timer = new Timer(90, () => {
+        console.log("Time's up! Game Over.");
+        // Here you would set your game state to 'gameOver'.
+        // For example: gameState = 'gameOver';
+    });
 
     const colors = {
         backgroundColor: '#e4fde1',
@@ -33,7 +39,8 @@ window.onload = function() {
         'music-toggle-btn'
     );
 
-    const game = new Game(canvas.width, canvas.height, colors, soundManager);
+    const game = new Game(canvas.width, canvas.height, colors, soundManager, timer);
+    let gameState = 'playing';
 
 
     function resize() {
@@ -79,6 +86,15 @@ window.onload = function() {
 
     window.addEventListener('resize', resize);
     resize();
+
+    function startGame() {
+        // Here you would reset your game state.
+        // game.reset();
+        timer.start();
+        // gameState = 'playing';
+    }
+
+    startGame();
 
     function isClickInside(button, x, y) {
         if (!button || !button.width) return false;
@@ -148,7 +164,8 @@ window.onload = function() {
 
         if(game) {
             game.update(mousePos);
-            game.draw(ctx, gamePanel);
+            timer.update();
+            game.draw(ctx, gamePanel, timer);
         }
         //
         // if (gameState === 'menu') {

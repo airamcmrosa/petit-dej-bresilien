@@ -91,6 +91,6 @@ canvas#gameCanvas {
 
 #music-toggle-btn.paused {
     background-color: rgba(107, 162, 146, 0.3); /* Muted teal */
-    color: var(--color-light-grey);
-    border-color: var(--color-light-grey);
+    color: var(--color-strong-red);
+    border-color: var(--color-strong-red);
 }

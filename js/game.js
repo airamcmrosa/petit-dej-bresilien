@@ -189,7 +189,7 @@ export class Game {
     }
 
 
-    draw(ctx, gamePanel) {
+    draw(ctx, gamePanel, timer) {
 
         if (this.imagesLoaded < this.totalImages) {
             return;
@@ -257,8 +257,32 @@ export class Game {
         ctx.fillText(this.gameTextInstructions.text, this.gameTextInstructions.x, this.gameTextInstructions.y)
 
 
-        if (!gamePanel || !gamePanel.alimentsListTextRect) {
+        if (!timer ) {
+            console.warn("no timer")
             return;
+        }
+
+        const timerDisplay = gamePanel.timeDisplayArea;
+        // console.log(JSON.parse(JSON.stringify(timerDisplay)));
+
+        if (timerDisplay.width > 0) {
+            const formattedTime = timer.getFormattedTime();
+
+            console.log(formattedTime);
+
+
+            const fontSize = timerDisplay.height * 0.6;
+            ctx.font = `bold ${fontSize}px 'Nunito', non-serif`;
+            ctx.fillStyle = this.colors.alertColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Calculate the center position of the time display area.
+            const textX = timerDisplay.x + timerDisplay.width / 2;
+            const textY = timerDisplay.y + timerDisplay.height / 2;
+
+            // Draw the time.
+            ctx.fillText(formattedTime, textX, textY);
         }
 
         const listRect = gamePanel.alimentsListTextRect;
