@@ -30,7 +30,7 @@ window.onload = function() {
     };
 
     const footer = new Footer(colors);
-    const gamePanel = new  GamePanel(colors, canvas.width, canvas.height, ctx);
+    const gamePanel = new  GamePanel(colors);
 
     const soundManager = new SoundManager(
         {
@@ -52,16 +52,16 @@ window.onload = function() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-
-        // background.resize(canvas.width, canvas.height);
         footer.resize(canvas.width, canvas.height);
 
         if(gameState === 'menu') {
             console.log("resize ok em", gameState)
             // menu.resize(canvas.width, canvas.height);
         } else if (gameState === 'playing' && game) {
-            console.log("resize of gamestate playing", gameState)
-            gamePanel.resize(canvas.width, canvas.height, footer);
+            if(footer.footerArea) {
+                gamePanel.resize(canvas.width, canvas.height, footer);
+                game.resize();
+            }
 
         } else if (gameState === 'gameOver') {
             // console.log("resize ok do", gameState)

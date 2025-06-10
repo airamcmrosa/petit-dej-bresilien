@@ -10,6 +10,8 @@ export class GamePanel {
         this.alimentsListTextRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
         this.tableRect = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
 
+        this.flagsArea = { x: 0, y: 0, width: 0, height: 0 };
+
         this.alimentListImage = new Image();
         this.alimentListImage.src = './media/papel.svg';
 
@@ -41,8 +43,8 @@ export class GamePanel {
         // Calculate available width for elements, considering 3 padding gaps (left, middle, right).
         const availableWidth = this.panelRect.width - (padding * 3);
         const rightDisplayWidth = availableWidth;
-        const timeDisplayWidth = availableWidth * 0.3; // 30% for the time display.
-        const gameTextWidth = availableWidth * 0.7;    // 70% for the game text.
+        const timeDisplayWidth = availableWidth * 0.3;
+        const gameTextWidth = availableWidth * 0.7;
 
         // Define gameTextRect (left side of top row).
         this.gameTextRect = {
@@ -56,6 +58,11 @@ export class GamePanel {
         const bottomRowY = topRowY + topRowHeight + padding;
         const bottomRowHeight = this.panelRect.height - topRowHeight - (padding * 3);
 
+        const flagColumnWidth = 40;
+
+        const alimentsListWidth = timeDisplayWidth - flagColumnWidth - padding;
+
+
         this.rightDisplayArea = {
             x: this.gameTextRect.x + this.gameTextRect.width + padding,
             y: 0,
@@ -64,32 +71,36 @@ export class GamePanel {
             cornerRadius: 15
         };
 
-        // Define timeDisplayArea (right side of top row).
         this.timeDisplayArea = {
             x: this.gameTextRect.x + this.gameTextRect.width + padding,
-            y: topRowY, // Same 'y' as gameTextRect for alignment.
-            width: timeDisplayWidth,
-            height: topRowHeight, // Same 'height' as gameTextRect.
+            y: topRowY,
+            width: alimentsListWidth,
+            height: topRowHeight,
             cornerRadius: 15
         };
 
 
-        // Define tableRect (left side of bottom row).
         this.tableRect = {
-            x: this.gameTextRect.x, // Align horizontally with gameTextRect above.
+            x: this.gameTextRect.x,
             y: bottomRowY,
-            width: this.gameTextRect.width + 20, // Same width as gameTextRect.
+            width: this.gameTextRect.width + 20,
             height: bottomRowHeight + 50,
             cornerRadius: 15
         };
 
-        // Define alimentsListTextRect (right side of bottom row).
         this.alimentsListTextRect = {
-            x: this.timeDisplayArea.x, // Align horizontally with timeDisplayArea above.
+            x: this.timeDisplayArea.x,
             y: bottomRowY,
-            width: this.timeDisplayArea.width, // Same width as timeDisplayArea.
+            width: this.timeDisplayArea.width,
             height: bottomRowHeight,
             cornerRadius: 15
+        };
+
+        this.flagsArea = {
+            x: this.alimentsListTextRect.x + this.alimentsListTextRect.width + padding,
+            y: bottomRowY,
+            width: flagColumnWidth,
+            height: bottomRowHeight
         };
 
 
@@ -100,7 +111,7 @@ export class GamePanel {
 
         // --- Draw Main Panel Background ---
         ctx.save();
-        ctx.drawImage(this.backgroundImage, 0, 0, this.panelRect.width, this.rightDisplayArea.height);
+        ctx.drawImage(this.backgroundImage, 0, 0, this.panelRect.width, this.panelRect.height + this.panelRect.y);
 
         ctx.restore();
 
@@ -147,7 +158,7 @@ export class GamePanel {
             // ctx.stroke();
 
             ctx.drawImage(this.alimentListImage, this.alimentsListTextRect.x + (this.alimentsListTextRect.width /2)*0.1, this.alimentsListTextRect.y,
-                this.alimentsListTextRect.width, this.alimentsListTextRect.height);
+                this.alimentsListTextRect.width + 60, this.alimentsListTextRect.height);
 
         }
         if (this.tableRect && this.tableRect.width > 0) {
