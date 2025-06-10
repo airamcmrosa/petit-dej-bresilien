@@ -161,7 +161,7 @@ export class Game {
         this.clickedCards = [];
     }
 
-    calculateLayout(ctx, gamePanel, option) {
+    calculateLayout(ctx, gamePanel) {
         if (!gamePanel || !gamePanel.tableRect || !gamePanel.tableRect.width) return;
 
         // --- 1. Calculate Image Positions (existing logic) ---
@@ -240,14 +240,18 @@ export class Game {
 
         this.listLayout = {
             rect: listRect,
-            flagsArea: gamePanel.flagsArea,
+            x: listRect.x,
+            y: listRect.y,
+            width: availableListWidth,
+            height: listRect.height,
             font: `400 ${fontSizeListText}px 'Lilita One', cursive`,
             fontSize: fontSizeListText,
             lineHeight: fontSizeListText * 1.5,
             textPadding: {top: listRect.height * 0.25, left: listRect.width * 0.15}
         };
 
-        this.helpGame.calculateLayout(ctx, listRect, gamePanel.flagsArea, this.listLayout.fontSize);
+
+        this.helpGame.calculateLayout(ctx, this.listLayout);
     }
 
     resize() {
@@ -341,6 +345,7 @@ export class Game {
                 const text = option.isTranslated ? option.pt : option.fr;
                 const textX = this.listLayout.rect.x + this.listLayout.textPadding.left;
                 const textY = this.listLayout.rect.y + this.listLayout.textPadding.top + (index * this.listLayout.lineHeight);
+
                 ctx.fillText(text, textX, textY);
 
                 if (option.isFound) {
@@ -356,7 +361,7 @@ export class Game {
                     ctx.stroke();
                 }
 
-                this.helpGame.draw(ctx);
+                this.helpGame.draw(ctx, option);
 
             });
 

@@ -5,9 +5,7 @@ export class HelpGame {
         this.soundManager = soundManager;
         this.flagImage = null;
         this.ctx = null;
-        this.listRect = null;
-        this.flagsArea = null;
-        this.fontSize = null;
+        this.listLayout = null;
     }
 
 
@@ -24,41 +22,43 @@ export class HelpGame {
         this.flagImage.src = `media/brazil-flag-round-circle-icon.svg`;
     }
 
-    calculateLayout(ctx, listRect, flagsArea, fontSize) {
+    calculateLayout(ctx, listLayout) {
+
         if (ctx) this.ctx = ctx;
-        if (listRect) this.listRect = listRect;
-        if (flagsArea) this.flagsArea = flagsArea;
-        if (fontSize) this.fontSize = fontSize;
+        if (listLayout) this.listLayout = listLayout;
 
-        if (!this.listRect || !flagsArea || !this.ctx || !this.deck || !this.fontSize) return;
+        console.log(this.listLayout);
 
+        if (!this.listLayout) return;
+
+        this.ctx.font = this.listLayout.font;
+        const fontSize = parseFloat(this.listLayout.fontSize);
         const lineHeight = fontSize * 1.5;
-        const textPadding = { top: this.listRect.height * 0.25, left: this.listRect.width * 0.15 };
+        const textPadding = { top: this.listLayout.height * 0.25, left: this.listLayout.width * 0.2 };
 
-        this.ctx.font = fontSize;
+
 
         this.deck.forEach((option, index) => {
             const text = option.isTranslated ? option.pt : option.fr;
-            const textX = this.listRect.x + textPadding.left;
-            const textY = this.listRect.y + textPadding.top + (index * lineHeight);
-
-            const metrics = this.ctx.measureText(text);
-            const textWidth = metrics.width;
+            const textX = this.listLayout.x + textPadding.left;
+            const textY = this.listLayout.y + textPadding.top + (index * lineHeight);
+            const textWidth = this.ctx.measureText(text).width;
 
             const flagSize = fontSize;
-            const flagX = textX + textWidth + (flagSize * 0.2);
-            const flagY = textY + (fontSize / 2) - (flagSize / 2);
+            const flagX = textX + textWidth;
 
+            const flagY = textY + (fontSize / 2) - (flagSize / 2);
 
             option.flagX = flagX;
             option.flagY = flagY;
             option.flagSize = flagSize;
+            console.log(option);
         });
     }
 
 
     handleInput(x, y) {
-        console.log("called handle input draw");
+        // console.log("called handle input draw");
         for (const option of this.deck) {
 
             if (option.flagX &&
@@ -75,20 +75,17 @@ export class HelpGame {
 
 
     traduction(cardToTranslate) {
+        console.log("called traduction");
         cardToTranslate.isTranslated = !cardToTranslate.isTranslated;
         this.calculateLayout();
     }
 
 
 
-    draw(ctx) {
-        if (!this.flagImage || !this.flagImage.complete ) return;
+    draw(ctx, option) {
+        if (!this.flagImage || !this.flagImage.complete || option.flagX === undefined) return;
+        ctx.drawImage(this.flagImage, option.flagX, option.flagY, option.flagSize, option.flagSize);
 
-        this.deck.forEach(option => {
 
-            if (option.flagX !== undefined) {
-                ctx.drawImage(this.flagImage, option.flagX, option.flagY, option.flagSize, option.flagSize);
-            }
-        });
     }
 }
