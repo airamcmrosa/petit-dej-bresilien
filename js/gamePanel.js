@@ -162,7 +162,7 @@ export class GamePanel {
 
         }
         if (this.tableRect && this.tableRect.width > 0) {
-            ctx.drawImage(this.tableImage, this.tableRect.x, this.tableRect.y, this.tableRect.width, this.tableRect.height);
+            ctx.drawImage(this.tableImage, this.tableRect.x, this.tableRect.y, this.tableRect.width, this.tableRect.height * 1.1);
 
         }
     }

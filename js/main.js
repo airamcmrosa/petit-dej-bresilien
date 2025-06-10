@@ -1,4 +1,5 @@
 import {Footer} from "./footer.js";
+import { Menu } from './menu.js';
 import {Game} from "./game.js";
 import {GamePanel} from "./gamePanel.js";
 import {SoundManager} from "./soundManager.js";
@@ -41,11 +42,14 @@ window.onload = function() {
         'background-music',
         'music-toggle-btn'
     );
+    const menu = new Menu(colors, soundManager);
 
     const endScreen = new EndScreen(colors, startGame, soundManager);
 
+
+    let gameState = 'menu';
     let game = null;
-    let gameState = 'playing';
+    let lastTime = 0;
 
 
     function resize() {
@@ -56,7 +60,7 @@ window.onload = function() {
 
         if(gameState === 'menu') {
             console.log("resize ok em", gameState)
-            // menu.resize(canvas.width, canvas.height);
+            menu.resize(canvas.width, canvas.height);
         } else if (gameState === 'playing' && game) {
             if(footer.footerArea) {
                 gamePanel.resize(canvas.width, canvas.height, footer);
@@ -74,6 +78,8 @@ window.onload = function() {
 
     window.addEventListener('resize', resize);
     resize();
+
+    menu.startAnimation();
 
 
     function startGame() {
@@ -93,7 +99,6 @@ window.onload = function() {
     }
 
 
-    startGame();
 
     function isClickInside(button, x, y) {
         if (!button || !button.width) return false;
@@ -120,12 +125,12 @@ window.onload = function() {
             mouseY = event.clientY - rect.top;
         }
 
-        // if (gameState === 'menu') {
-        // if (menu.playButton && menu.playButton.width && isClickInside(menu.playButton, mouseX, mouseY)) {
-        //     if (soundManager) soundManager.playEffect('click');
-        //     startGame();
-        // }
-        // } else
+        if (gameState === 'menu') {
+        if (menu.playButton && menu.playButton.width && isClickInside(menu.playButton, mouseX, mouseY)) {
+            if (soundManager) soundManager.playEffect('click');
+            startGame();
+        }
+        } else
         if (gameState === 'playing' && game) {
             game.handleInput(mouseX, mouseY);
         } else if (gameState === 'gameOver') {
@@ -141,21 +146,17 @@ window.onload = function() {
     canvas.addEventListener('click', handleInteraction);
     canvas.addEventListener('touchstart', handleInteraction);
 
-    function animate() {
+    function animate(currentTime) {
+        const deltaTime = (currentTime - lastTime) / 1000;
+        lastTime = currentTime;
 
 
         ctx.fillStyle = colors.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if(gamePanel) {
-            gamePanel.draw(ctx);
-        } else {
-            console.log("gamePanel not ready")
-        }
-
-
         if (gameState === 'menu') {
-            // menu.draw(ctx);
+            menu.update(deltaTime);
+            menu.draw(ctx);
         } else if (gameState === 'playing' && game) {
             game.update(mousePos);
             gamePanel.draw(ctx);
@@ -175,8 +176,9 @@ window.onload = function() {
 
         }
         footer.draw(ctx);
+        lastTime = performance.now();
         requestAnimationFrame(animate);
 
     }
-    animate();
+    animate(lastTime);
 }

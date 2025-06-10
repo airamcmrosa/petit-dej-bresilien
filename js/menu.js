@@ -1,11 +1,10 @@
 export class Menu {
     constructor(colors, soundManager) {
         this.title = 'Petit déjeuner';
-        this.subtitle = 'brésilien'; //
+        this.subtitle = 'brésilien';
         this.buttonTextPlay = 'Lancer le jeu';
         this.colors = colors;
         this.soundManager = soundManager;
-
 
 
         this.titleFontSize = 0;
@@ -14,6 +13,22 @@ export class Menu {
         this.subtitlePosition = {};
         this.buttonFontSize = 0;
         this.playButton = { cornerRadius: 20 };
+
+        this.animationTimer = 0;
+        this.animationDuration = 1.2;
+
+        // Escala inicial de cada elemento (0 = invisível, 1 = tamanho normal)
+        this.titleScale = 0;
+        this.subtitleScale = 0;
+        this.buttonScale = 0;
+
+    }
+
+    startAnimation() {
+        this.animationTimer = 0;
+        this.titleScale = 0;
+        this.subtitleScale = 0;
+        this.buttonScale = 0;
     }
 
     resize(canvasWidth, canvasHeight) {
@@ -27,16 +42,14 @@ export class Menu {
 
         const basePadding = canvasHeight * 0.05;
 
+        const titleY =  canvasHeight * 0.2;
 
-        const subtitleY = canvasHeight * 0.2;
+        const subtitleY = titleY+ this.subtitleFontSize + basePadding * 0.9;
 
-        const titleY = subtitleY + this.subtitleFontSize + basePadding * 0.9;
-        const title2Y = titleY + this.titleFontSize * 0.7 + basePadding * 0.9;
 
-        const buttonY = title2Y + this.titleFontSize * 0.7 + basePadding * 1.2;
+        const buttonY = subtitleY + this.titleFontSize * 0.7 + basePadding * 1.2;
 
         this.titlePosition = { x: canvasWidth / 2, y: titleY };
-        this.title2Position = { x: canvasWidth / 2, y: title2Y };
         this.subtitlePosition = { x: canvasWidth / 2, y: subtitleY };
 
 
@@ -53,43 +66,91 @@ export class Menu {
         };
     }
 
+    easeOutBack(x) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+    }
+
+    update(deltaTime) {
+        if (this.animationTimer > this.animationDuration) return;
+
+        this.animationTimer += deltaTime;
+
+        // Define os tempos para cada parte da animação
+        const titleStartTime = 0.1;
+        const subtitleStartTime = 0.4;
+        const buttonStartTime = 0.7;
+
+        // Animação do Título
+        if (this.animationTimer > titleStartTime) {
+            const progress = (this.animationTimer - titleStartTime) / 0.5; // Duração da animação do título = 0.5s
+            this.titleScale = this.easeOutBack(Math.min(1.0, progress));
+        }
+
+        // Animação do Subtítulo
+        if (this.animationTimer > subtitleStartTime) {
+            const progress = (this.animationTimer - subtitleStartTime) / 0.5;
+            this.subtitleScale = this.easeOutBack(Math.min(1.0, progress));
+        }
+
+        // Animação do Botão
+        if (this.animationTimer > buttonStartTime) {
+            const progress = (this.animationTimer - buttonStartTime) / 0.5;
+            this.buttonScale = this.easeOutBack(Math.min(1.0, progress));
+        }
+    }
+
+
     draw(ctx) {
+
         if (!this.playButton.width) return;
 
-        const btn = this.playButton;
-
-
-        ctx.fillStyle = this.colors.mainAccent;
-        ctx.font = `bold ${this.titleFontSize}px "Dancing Script"`; //
+        // --- Desenha o Título com sua escala atual ---
+        ctx.save();
+        ctx.fillStyle = this.colors.alertColor;
+        ctx.font = `bold ${this.titleFontSize}px "Dancing Script"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.title, this.titlePosition.x, this.titlePosition.y);
+        // Move o canvas para o centro do título, aplica a escala e desenha
+        ctx.translate(this.titlePosition.x, this.titlePosition.y);
+        ctx.scale(this.titleScale, this.titleScale);
+        ctx.fillText(this.title, 0, 0);
+        ctx.restore();
 
-        ctx.fillStyle = this.colors.mainAccent;
-        ctx.font = `bold ${this.titleFontSize}px "Dancing Script"`; //
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(this.title2, this.title2Position.x, this.title2Position.y);
-
-
-        ctx.fillStyle = this.colors.text;
+        // --- Desenha o Subtítulo com sua escala atual ---
+        ctx.save();
+        ctx.fillStyle = this.colors.overlay;
         ctx.font = `${this.subtitleFontSize}px "Quicksand"`;
-        ctx.fillText(this.subtitle, this.subtitlePosition.x, this.subtitlePosition.y);
+        ctx.translate(this.subtitlePosition.x, this.subtitlePosition.y);
+        ctx.scale(this.subtitleScale, this.subtitleScale);
+        ctx.fillText(this.subtitle, 0, 0);
+        ctx.restore();
 
+        // --- Desenha o Botão com sua escala atual ---
+        const btn = this.playButton;
+        ctx.save();
+        // Move para o centro do botão para escalar a partir do centro
+        ctx.translate(btn.x + btn.width / 2, btn.y + btn.height / 2);
+        ctx.scale(this.buttonScale, this.buttonScale);
 
-        ctx.shadowColor = this.colors.mainAccent;
+        // Desenha o botão na nova origem (0,0), mas deslocado pela metade de sua largura/altura
+        const btnDrawX = -btn.width / 2;
+        const btnDrawY = -btn.height / 2;
+
+        ctx.shadowColor = this.colors.highlight1;
         ctx.shadowBlur = 15;
-
-        ctx.fillStyle = this.colors.btnbackground;
+        ctx.fillStyle = this.colors.highlight1;
         ctx.beginPath();
-        ctx.roundRect(btn.x, btn.y, btn.width, btn.height, btn.cornerRadius);
+        ctx.roundRect(btnDrawX, btnDrawY, btn.width, btn.height, btn.cornerRadius);
         ctx.fill();
-
         ctx.shadowBlur = 0;
 
-
-        ctx.fillStyle = this.colors.textDark;
+        // Texto do botão
+        ctx.fillStyle = this.colors.backgroundColor;
         ctx.font = `300 ${this.buttonFontSize}px "Quicksand"`;
-        ctx.fillText(btn.text, this.titlePosition.x, btn.y + btn.height / 2);
+        ctx.fillText(btn.text, 0, 0); // O texto já está centralizado na origem
+
+        ctx.restore();
     }
 }
