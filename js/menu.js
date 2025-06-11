@@ -120,7 +120,7 @@ export class Menu {
 
         // --- Desenha o Subtítulo com sua escala atual ---
         ctx.save();
-        ctx.fillStyle = this.colors.overlay;
+        ctx.fillStyle = this.colors.highlight1;
         ctx.font = `${this.subtitleFontSize}px "Quicksand"`;
         ctx.translate(this.subtitlePosition.x, this.subtitlePosition.y);
         ctx.scale(this.subtitleScale, this.subtitleScale);
@@ -147,7 +147,7 @@ export class Menu {
         ctx.shadowBlur = 0;
 
         // Texto do botão
-        ctx.fillStyle = this.colors.backgroundColor;
+        ctx.fillStyle = 'white';
         ctx.font = `300 ${this.buttonFontSize}px "Quicksand"`;
         ctx.fillText(btn.text, 0, 0); // O texto já está centralizado na origem
 
