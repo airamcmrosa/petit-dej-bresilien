@@ -166,10 +166,11 @@ export class Game {
 
         // --- 1. Calculate Image Positions (existing logic) ---
         const table = gamePanel.tableRect;
-        const imageWidth = (table.width * 0.2) / 2;
-        const imageHeight = imageWidth;
-        const padding = table.width * 0.025;
+
         const isWider = table.width > table.height;
+        const imageWidth =isWider?( (table.width * 0.2) / 2) : ( (table.width * 0.3) / 2);
+        const imageHeight = imageWidth;
+        const padding = table.width * (isWider? 0.025 : 0.015);
         const numCols = isWider ? 4 : 3;
         const numRows = isWider ? 3 : 4;
         const gridWidth = (numCols * imageWidth) + ((numCols - 1) * padding);
@@ -191,6 +192,7 @@ export class Game {
         const textToDraw = "On a faim! Trouve les aliments de la liste dessous: ";
         const availableWidth = textRect.width * 0.9;
         let fontSizeGameText = textRect.height * 0.5;
+        console.log("text height is", textRect.height);
 
         while (fontSizeGameText > 10) {
             ctx.font = `500 ${fontSizeGameText}px 'Lilita One', cursive`;
@@ -205,7 +207,7 @@ export class Game {
 
         this.gameTextInstructions = {
             x: textRect.x + (textRect.width - ctx.measureText(textToDraw).width) / 2,
-            y: textRect.y + (textRect.height*0.2),
+            y: textRect.y + (textRect.height*0.3),
             font: `500 ${fontSizeGameText}px 'Lilita One', cursive`,
             text: textToDraw
         };
@@ -226,7 +228,7 @@ export class Game {
             }
         });
         const availableListWidth = listRect.width * 0.8;
-        let fontSizeListText = listRect.height * 0.05;
+        let fontSizeListText = listRect.height * (isWider? 0.05 : 0.1);
 
         while (fontSizeListText > 10) {
             ctx.font = `500 ${fontSizeListText}px 'Lilita One', cursive`;
@@ -259,7 +261,7 @@ export class Game {
     }
 
 
-    draw(ctx, gamePanel, timer) {
+    draw(ctx, gamePanel) {
 
         if (this.imagesLoaded < this.totalImages) {
             return;
@@ -309,31 +311,31 @@ export class Game {
             ctx.fillText(this.gameTextInstructions.text, this.gameTextInstructions.x, this.gameTextInstructions.y);
         }
 
-        if (!timer) {
-            console.warn("no timer")
-            return;
-        }
-
-        const timerDisplay = gamePanel.timeDisplayArea;
-        // console.log(JSON.parse(JSON.stringify(timerDisplay)));
-
-        if (timerDisplay.width > 0) {
-            const formattedTime = timer.getFormattedTime();
-
-            console.log(formattedTime);
-
-
-            const fontSize = timerDisplay.height * 0.6;
-            ctx.font = `bold ${fontSize}px 'Nunito', non-serif`;
-            ctx.fillStyle = this.colors.alertColor;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            const textX = timerDisplay.x + timerDisplay.width / 2;
-            const textY = timerDisplay.y + timerDisplay.height / 2;
-
-            ctx.fillText(formattedTime, textX, textY);
-        }
+        // if (!timer) {
+        //     console.warn("no timer")
+        //     return;
+        // }
+        //
+        // const timerDisplay = gamePanel.timeDisplayArea;
+        // // console.log(JSON.parse(JSON.stringify(timerDisplay)));
+        //
+        // if (timerDisplay.width > 0) {
+        //     const formattedTime = timer.getFormattedTime();
+        //
+        //     console.log(formattedTime);
+        //
+        //
+        //     const fontSize = timerDisplay.height * 0.6;
+        //     ctx.font = `bold ${fontSize}px 'Nunito', non-serif`;
+        //     ctx.fillStyle = this.colors.alertColor;
+        //     ctx.textAlign = 'center';
+        //     ctx.textBaseline = 'middle';
+        //
+        //     const textX = timerDisplay.x + timerDisplay.width / 2;
+        //     const textY = timerDisplay.y + timerDisplay.height / 2;
+        //
+        //     ctx.fillText(formattedTime, textX, textY);
+        // }
 
         if (this.listLayout) {
             ctx.font = this.listLayout.font;

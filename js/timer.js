@@ -1,4 +1,3 @@
-// timer.js
 
 export class Timer {
     /**

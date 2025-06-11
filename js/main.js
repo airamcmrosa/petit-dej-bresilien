@@ -159,13 +159,13 @@ window.onload = function() {
             menu.draw(ctx);
         } else if (gameState === 'playing' && game) {
             game.update(mousePos);
-            gamePanel.draw(ctx);
+            gamePanel.draw(ctx, timer);
             timer.update();
-            game.draw(ctx, gamePanel, timer);
+            game.draw(ctx, gamePanel);
 
         } else if (gameState === 'gameOver') {
 
-            if (game) game.draw(ctx, gamePanel, timer);
+            if (game) game.draw(ctx, gamePanel);
             if (endScreen) {
                 console.log("[Main.animate] Desenhando EndScreen. Reason:", endScreen.reasonForGameOver);
                 endScreen.draw(ctx, canvas.width, canvas.height);

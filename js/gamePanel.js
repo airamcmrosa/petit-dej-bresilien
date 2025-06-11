@@ -51,90 +51,98 @@ export class GamePanel {
     }
 
     resize(canvasWidth, canvasHeight, footer) {
-        // --- Painel Principal ---
 
         if (!footer) return;
-        const topMargin = 50;
 
-        // The panel takes the full canvas width and the height remaining after the footer.
-        this.panelRect.width = canvasWidth;
+        const isWider = canvasWidth > canvasHeight;
+        const topMargin = canvasHeight * (isWider? 0.05 : 0.025);
+        const padding = canvasWidth * (isWider? 0.04 : 0.02);
+        this.panelRect.width = canvasWidth - padding * (isWider? 2 : 0);
         this.panelRect.height = canvasHeight - topMargin - footer.footerArea.height;
         this.panelRect.x = 0;
-        this.panelRect.y = topMargin;
+        this.panelRect.y = topMargin * 2;
 
-        const padding = canvasWidth * 0.02; // Use a responsive padding.
+        console.log("footer height are", footer.footerArea.height);
 
-        // --- Top Row Calculations (gameText and timeDisplay) ---
-        const topRowY = this.panelRect.y + padding;
-        const topRowHeight = this.panelRect.height * 0.1;
 
-        // Calculate available width for elements, considering 3 padding gaps (left, middle, right).
-        const availableWidth = this.panelRect.width - (padding * 3);
-        const rightDisplayWidth = availableWidth;
-        const timeDisplayWidth = availableWidth * 0.3;
-        const gameTextWidth = availableWidth * 0.7;
 
-        // Define gameTextRect (left side of top row).
-        this.gameTextRect = {
-            x: this.panelRect.x + padding,
-            y: topRowY,
-            width: gameTextWidth,
-            height: topRowHeight,
-            cornerRadius: 15
-        };
+        const topRowY = this.panelRect.y;
+        const topRowHeight = this.panelRect.height * (isWider? (1/8) : (1/10));
 
-        const bottomRowY = topRowY + topRowHeight + padding;
-        const bottomRowHeight = this.panelRect.height - topRowHeight - (padding * 3);
+        const rightDisplayWidth = this.panelRect.width * (isWider? (1/3) : 1);
+        const leftDisplayWidth = this.panelRect.width - rightDisplayWidth - padding;
+        console.log("display sizes are ", rightDisplayWidth, leftDisplayWidth, "top margin are", topMargin, "padding is ", padding);
+
+        let secondRowY =  topRowY + topRowHeight + (topMargin / 2);
+        let secondHowHeight = this.panelRect.height * (isWider? (1/8) : (1/10)) ;
+
+
+        const thirdRowY = isWider? secondRowY + secondHowHeight : secondRowY  + (topMargin / 2);
+        const thirdRowHeight = this.panelRect.height * (isWider? (6/8) : (6/10)) ;
+
+        const fourthRowY = thirdRowY + thirdRowHeight +  (topMargin / 2);
+        const fourthHowHeight = this.panelRect.height * (isWider? (1/8) : (2/10)) ;
+
 
         const flagColumnWidth = 40;
 
-        const alimentsListWidth = timeDisplayWidth - flagColumnWidth - padding;
+        if (isWider){
+            this.rightDisplayArea = {
+                x:this.panelRect.x + padding+ leftDisplayWidth ,
+                y: topRowY,
+                width: rightDisplayWidth,
+                height: this.panelRect.height
+            }
+
+        }
 
 
-        this.rightDisplayArea = {
-            x: this.gameTextRect.x + this.gameTextRect.width + padding,
-            y: 0,
-            width: rightDisplayWidth,
-            height: canvasHeight,
+        this.gameTextRect = {
+            x: this.panelRect.x,
+            y: topRowY,
+            width: isWider? leftDisplayWidth : this.panelRect.width,
+            height: topRowHeight,
             cornerRadius: 15
         };
 
+
         this.timeDisplayArea = {
-            x: this.gameTextRect.x + this.gameTextRect.width + padding,
-            y: topRowY,
-            width: alimentsListWidth,
-            height: topRowHeight,
+            x: this.panelRect.x + (isWider? (leftDisplayWidth + padding) : (rightDisplayWidth /4)),
+            y: isWider? topRowY : secondRowY,
+            width: isWider? rightDisplayWidth : this.panelRect.width / 2,
+            height: isWider? topRowHeight : secondHowHeight,
             cornerRadius: 15
         };
 
 
         this.tableRect = {
-            x: this.gameTextRect.x,
-            y: bottomRowY,
-            width: this.gameTextRect.width + 20,
-            height: bottomRowHeight + 50,
+            x: this.panelRect.x,
+            y: thirdRowY,
+            width: isWider? leftDisplayWidth : this.panelRect.width,
+            height: thirdRowHeight,
             cornerRadius: 15
         };
+        console.log("table sizes are ", this.tableRect);
 
         this.alimentsListTextRect = {
-            x: this.timeDisplayArea.x,
-            y: bottomRowY,
-            width: this.timeDisplayArea.width,
-            height: bottomRowHeight,
+            x:  this.panelRect.x + (isWider? (leftDisplayWidth + padding)  : 0),
+            y: isWider? (this.timeDisplayArea.y + this.timeDisplayArea.height + padding) : fourthRowY,
+            width: isWider? rightDisplayWidth : this.panelRect.width,
+            height: isWider? thirdRowHeight: fourthHowHeight,
             cornerRadius: 15
         };
 
         this.flagsArea = {
             x: this.alimentsListTextRect.x + this.alimentsListTextRect.width + padding,
-            y: bottomRowY,
+            y: fourthHowHeight,
             width: flagColumnWidth,
-            height: bottomRowHeight
+            height: isWider? thirdRowHeight : fourthHowHeight,
         };
 
 
     }
 
-    draw(ctx) {
+    draw(ctx, timer) {
 
 
         if (!this.panelRect.width) return;
@@ -159,7 +167,6 @@ export class GamePanel {
             ctx.fill();
         }
 
-        // Placeholder for timeDisplayArea
         if(this.rightDisplayArea) {
             ctx.shadowColor = this.colors.backgroundColor;
             ctx.shadowBlur = 10;
@@ -173,13 +180,6 @@ export class GamePanel {
             ctx.restore();
 
         }
-        if (this.timeDisplayArea && this.timeDisplayArea.width > 0) {
-
-            ctx.beginPath();
-            ctx.roundRect(this.timeDisplayArea.x, this.timeDisplayArea.y, this.timeDisplayArea.width,
-                this.timeDisplayArea.height, this.timeDisplayArea.cornerRadius);
-            ctx.fill();
-        }
 
         // Placeholder for aliments list
         if (this.alimentsListTextRect && this.alimentsListTextRect.width > 0) {
@@ -189,13 +189,44 @@ export class GamePanel {
             //     this.alimentsListTextRect.height, this.alimentsListTextRect.cornerRadius);
             // ctx.stroke();
 
-            ctx.drawImage(this.alimentListImage, this.alimentsListTextRect.x + (this.alimentsListTextRect.width /2)*0.1, this.alimentsListTextRect.y,
-                this.alimentsListTextRect.width + 60, this.alimentsListTextRect.height);
+            ctx.drawImage(this.alimentListImage, this.alimentsListTextRect.x, this.alimentsListTextRect.y,
+                this.alimentsListTextRect.width, this.alimentsListTextRect.height + 10);
 
         }
         if (this.tableRect && this.tableRect.width > 0) {
-            ctx.drawImage(this.tableImage, this.tableRect.x, this.tableRect.y, this.tableRect.width, this.tableRect.height * 1.1);
+            ctx.drawImage(this.tableImage, this.tableRect.x, this.tableRect.y + (this.timeDisplayArea.height/2), this.tableRect.width, this.tableRect.height);
 
         }
+        if (this.timeDisplayArea && this.timeDisplayArea.width > 0) {
+            //
+            //     ctx.beginPath();
+            //     ctx.roundRect(this.timeDisplayArea.x, this.timeDisplayArea.y, this.timeDisplayArea.width,
+            //         this.timeDisplayArea.height, this.timeDisplayArea.cornerRadius);
+            //     ctx.fill();
+            // }
+
+
+            const timerDisplay = this.timeDisplayArea;
+            // console.log(JSON.parse(JSON.stringify(timerDisplay)));
+
+            if (timerDisplay.width > 0) {
+                const formattedTime = timer.getFormattedTime();
+
+                console.log(formattedTime);
+
+
+                const fontSize = timerDisplay.height * 0.6;
+                ctx.font = `bold ${fontSize}px 'Nunito', non-serif`;
+                ctx.fillStyle = this.colors.alertColor;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const textX = timerDisplay.x + timerDisplay.width / 2;
+                const textY = timerDisplay.y + timerDisplay.height / 2;
+
+                ctx.fillText(formattedTime, textX, textY);
+            }
+        }
+
     }
 }

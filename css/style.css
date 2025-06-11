@@ -94,3 +94,11 @@ canvas#gameCanvas {
     color: var(--color-strong-red);
     border-color: var(--color-strong-red);
 }
+
+@media only screen and (max-width: 500px) {
+    #music-toggle-btn {
+        width: 25px;
+        height: 25px;
+        font-size: 0.8em;
+    }
+}
