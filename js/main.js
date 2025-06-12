@@ -27,7 +27,7 @@ window.onload = function() {
         highlight1: '#ffdc7c',
         accentColor: '#ff9b71',
         alertColor: '#dd614a',
-        darkTextForCanvas: '#4A3F35'
+        darkText: '#4A3F35'
     };
 
     const footer = new Footer(colors);
@@ -154,7 +154,10 @@ window.onload = function() {
         ctx.fillStyle = colors.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        footer.draw(ctx);
+
         if (gameState === 'menu') {
+
             menu.update(deltaTime);
             menu.draw(ctx);
         } else if (gameState === 'playing' && game) {
@@ -175,7 +178,7 @@ window.onload = function() {
 
 
         }
-        footer.draw(ctx);
+
         lastTime = performance.now();
         requestAnimationFrame(animate);
 

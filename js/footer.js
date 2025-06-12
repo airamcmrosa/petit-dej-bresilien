@@ -32,7 +32,7 @@ export class Footer {
     draw(ctx) {
         if (!this.footerArea.width) return;
 
-        ctx.fillStyle = this.colors.darkTextForCanvas;
+        ctx.fillStyle = this.colors.darkText;
         ctx.font = `${this.fontSize}px "Press Start 2P"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';

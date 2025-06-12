@@ -305,7 +305,7 @@ export class Game {
 
         if (this.gameTextInstructions) {
             ctx.font = this.gameTextInstructions.font;
-            ctx.fillStyle = this.colors.darkTextForCanvas;
+            ctx.fillStyle = this.colors.darkText;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
             ctx.fillText(this.gameTextInstructions.text, this.gameTextInstructions.x, this.gameTextInstructions.y);
@@ -339,7 +339,7 @@ export class Game {
 
         if (this.listLayout) {
             ctx.font = this.listLayout.font;
-            ctx.fillStyle = this.colors.darkTextForCanvas;
+            ctx.fillStyle = this.colors.darkText;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'top';
 

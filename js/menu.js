@@ -68,57 +68,58 @@ export class Menu {
 
         this.subtitle.fontsize = Math.max(24, this.title.fontsize * 0.8);
 
-        this.buttonPlay.fontsize = Math.max(18, canvasWidth / 38);
+        const buttonFontSize = Math.max(20, canvasWidth / 35);
+        this.buttonPlay.fontsize = buttonFontSize;
+        this.buttonCredits.fontsize = buttonFontSize;
 
-
-        this.buttonCredits.fontsize = Math.max(18, canvasWidth / 38);
 
         const isWider = canvasWidth > canvasHeight;
 
         const topMargin = canvasHeight * 0.05;
-        const padding = canvasWidth * (isWider? 0.025 : 0.005);
-        const availableWidth = canvasWidth - (padding * 2);
 
-        const availableHeight =  canvasHeight - topMargin;
+        const availableHeight =  canvasHeight - topMargin * 2;
+        let btnWidth;
+        let btnHeight;
 
-        const bottomMargin = this.buttonPlay.fontsize * 1.5;
 
-        this.menuPanel = {
-            x: isWider? padding : 0,
-            y: topMargin,
-            width: availableWidth,
-            height: availableHeight
-        };
-
-        this.title = {
-            ...this.title,
-            x: this.menuPanel.x + this.menuPanel.width/2,
-            y: this.menuPanel.y + this.menuPanel.height/3,
-            width: this.menuPanel.width,
-            height: this.title.fontsize
-        };
-
-        this.subtitle = {
-            ...this.subtitle,
-            x: this.menuPanel.x + this.menuPanel.width/2,
-            y: this.title.y + this.title.height + bottomMargin ,
-            width: this.menuPanel.width,
-            height: this.subtitle.fontsize
+        if (isWider) {
+            btnWidth = Math.min(canvasWidth * 0.4, 400);
+            btnHeight = Math.min(availableHeight * 0.12, 90);
+        } else {
+            btnWidth = Math.min(canvasWidth * 0.75, 320);
+            btnHeight = Math.min(availableHeight * 0.1, 80);
         }
+
+        const verticalPadding = canvasHeight * 0.03;
+        let currentY = canvasHeight / 2 - (this.title.fontsize + this.subtitle.fontsize + btnHeight * 2 + verticalPadding * 3) / 2;
+
+        this.title.x = canvasWidth / 2;
+        this.title.y = currentY;
+        currentY += this.title.fontsize + verticalPadding / 2;
+
+
+        this.subtitle.x = canvasWidth / 2;
+        this.subtitle.y = currentY;
+        currentY += this.subtitle.fontsize + verticalPadding * 1.5;
+
         this.buttonPlay = {
             ...this.buttonPlay,
-            x: this.menuPanel.x + (availableWidth/3),
-            y: this.subtitle.y + this.subtitle.height + bottomMargin ,
-            width: this.menuPanel.width/3 + padding *2,
-            height: (this.buttonPlay.fontsize * 3.2)
+            x:  ( canvasWidth /2) - (btnWidth/2),
+            y: currentY,
+            width: btnWidth,
+            height: btnHeight
         }
+        currentY += btnHeight + verticalPadding;
+        console.log("tam btn2:", this.buttonPlay.width);
+
         this.buttonCredits = {
             ...this.buttonCredits,
-            x: this.menuPanel.x + this.menuPanel.width/3,
-            y: this.buttonPlay.y + this.buttonPlay.height + bottomMargin,
-            width: this.menuPanel.width/3 + padding *2,
-            height: (this.buttonPlay.fontsize * 3.2)
+            x: ( canvasWidth /2) - (btnWidth/2),
+            y: currentY,
+            width: btnWidth,
+            height: btnHeight
         }
+        console.log("tam btn2:", this.buttonCredits.width);
 
 
     }
@@ -138,7 +139,7 @@ export class Menu {
         const titleStartTime = 0.1;
         const subtitleStartTime = 0.4;
         const buttonStartTime = 0.7;
-        const buttonCreditsStartTime = 0.9;
+        const buttonCreditsStartTime = 0.7;
 
         // Animação do Título
         if (this.animationTimer > titleStartTime) {
@@ -163,75 +164,129 @@ export class Menu {
         }
     }
 
-
     draw(ctx) {
+        if (!this.buttonPlay.width) return;
 
-        if (!this.buttonPlay.width || !this.title || !this.subtitle || !this.buttonCredits || this.title.width <0 ) return;
+        this.drawText(ctx, this.title, `800 ${this.title.fontsize}px "Dancing Script"`, this.colors.alertColor);
 
+
+        this.drawText(ctx, this.subtitle, `500 ${this.subtitle.fontsize}px "Quicksand"`, this.colors.borderColor);
+
+        this.drawButton(ctx, this.buttonPlay);
+        this.drawButton(ctx, this.buttonCredits);
+    }
+
+    drawText(ctx, textObject, font, color) {
         ctx.save();
-        ctx.fillStyle = this.colors.alertColor;
-        ctx.font = `800 ${this.title.fontsize}px "Dancing Script"`;
+        ctx.fillStyle = color;
+        ctx.font = font;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        // Move o canvas para o centro do título, aplica a escala e desenha
-        ctx.translate(this.title.x, this.title.y);
-        ctx.scale(this.title.scale, this.title.scale);
-        ctx.fillText(this.title.text, 0, 0);
-        ctx.restore();
-
-        // --- Desenha o Subtítulo com sua escala atual ---
-        ctx.save();
-        ctx.fillStyle = this.colors.alertColor;
-        ctx.font = `500 ${this.subtitle.fontsize}px "Quicksand"`;
-        ctx.translate(this.subtitle.x, this.subtitle.y);
-        ctx.scale(this.subtitle.scale, this.subtitle.scale);
-        ctx.fillText(this.subtitle.text, 0, 0);
-        ctx.restore();
-
-        const btn = this.buttonPlay;
-        ctx.save();
-        // Move para o centro do botão para escalar a partir do centro
-        ctx.translate(btn.x + btn.width / 2, btn.y + btn.height / 2);
-        ctx.scale(this.buttonPlay.scale, this.buttonPlay.scale);
-
-        // Desenha o botão na nova origem (0,0), mas deslocado pela metade de sua largura/altura
-        const btnDrawX = -btn.width / 2;
-        const btnDrawY = -btn.height / 2;
-
-        ctx.shadowColor = this.colors.highlight1;
-        ctx.shadowBlur = 15;
-        ctx.fillStyle = this.colors.highlight1;
-        ctx.beginPath();
-        ctx.roundRect(btnDrawX, btnDrawY, btn.width, btn.height, btn.cornerRadius);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = 'white';
-        ctx.font = `600 ${this.buttonPlay.fontsize}px "Quicksand"`;
-        ctx.fillText(btn.text, 0, 10);
-
-        ctx.restore();
-
-        ctx.save();
-
-        ctx.translate(this.buttonCredits.x + this.buttonCredits.width / 2, this.buttonCredits.y + this.buttonCredits.height / 2);
-        ctx.scale(this.buttonCredits.scale, this.buttonCredits.scale);
-
-        const btn2DrawX = -this.buttonCredits.width / 2;
-        const btn2DrawY = -this.buttonCredits.height / 2;
-
-        ctx.shadowColor = this.colors.highlight1;
-        ctx.shadowBlur = 15;
-        ctx.fillStyle = this.colors.highlight1;
-        ctx.beginPath();
-        ctx.roundRect(btn2DrawX, btn2DrawY, this.buttonCredits.width, this.buttonCredits.height, this.buttonCredits.cornerRadius);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        ctx.fillStyle = 'white';
-        ctx.font = `600 ${this.buttonCredits.fontsize}px "Quicksand"`;
-        ctx.fillText(this.buttonCredits.text, 0, 10);
-
+        ctx.translate(textObject.x, textObject.y);
+        ctx.scale(textObject.scale, textObject.scale);
+        ctx.fillText(textObject.text, 0, 0);
         ctx.restore();
     }
+
+    drawButton(ctx, buttonObject) {
+        ctx.save();
+        ctx.translate(buttonObject.x + buttonObject.width / 2, buttonObject.y + buttonObject.height / 2);
+        ctx.scale(buttonObject.scale, buttonObject.scale);
+        const btnDrawX = -buttonObject.width / 2;
+        const btnDrawY = -buttonObject.height / 2;
+        ctx.shadowColor = 'white';
+        ctx.shadowBlur = buttonObject.fontsize * 0.15;
+        const gradient = ctx.createLinearGradient(0, btnDrawY, 0, btnDrawY + buttonObject.height);
+
+        // 2. Adiciona as "paradas de cor". 0 é o início (topo), 1 é o fim (base).
+        // Usaremos duas cores do seu tema para criar o efeito.
+        gradient.addColorStop(0, '#ffdc7c'); // Cor inicial (usando a cor de highlight)
+        gradient.addColorStop(1, '#ff9b71'); // Cor final (usando a cor de accent)
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.roundRect(btnDrawX, btnDrawY, buttonObject.width, buttonObject.height, buttonObject.cornerRadius);
+        ctx.fill();
+        ctx.shadowColor = this.colors.darkText;
+        ctx.shadowBlur = 5;
+        ctx.fillStyle = 'white';
+
+        ctx.font = `900 ${buttonObject.fontsize}px "Quicksand"`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(buttonObject.text.toUpperCase(), 0, 0);
+        ctx.restore();
+    }
+
+
+    // draw(ctx) {
+    //
+    //     if (!this.buttonPlay.width || !this.title || !this.subtitle || !this.buttonCredits || this.title.width <0 ) return;
+    //
+    //     ctx.save();
+    //     ctx.fillStyle = this.colors.alertColor;
+    //     ctx.font = `800 ${this.title.fontsize}px "Dancing Script"`;
+    //     ctx.textAlign = 'center';
+    //     ctx.textBaseline = 'middle';
+    //     // Move o canvas para o centro do título, aplica a escala e desenha
+    //     ctx.translate(this.title.x, this.title.y);
+    //     ctx.scale(this.title.scale, this.title.scale);
+    //     ctx.fillText(this.title.text, 0, 0);
+    //     ctx.restore();
+    //
+    //     // --- Desenha o Subtítulo com sua escala atual ---
+    //     ctx.save();
+    //     ctx.fillStyle = this.colors.alertColor;
+    //     ctx.font = `500 ${this.subtitle.fontsize}px "Quicksand"`;
+    //     ctx.translate(this.subtitle.x, this.subtitle.y);
+    //     ctx.scale(this.subtitle.scale, this.subtitle.scale);
+    //     ctx.fillText(this.subtitle.text, 0, 0);
+    //     ctx.restore();
+    //
+    //     const btn = this.buttonPlay;
+    //     ctx.save();
+    //     // Move para o centro do botão para escalar a partir do centro
+    //     ctx.translate(btn.x + btn.width / 2, btn.y + btn.height / 2);
+    //     ctx.scale(this.buttonPlay.scale, this.buttonPlay.scale);
+    //
+    //     // Desenha o botão na nova origem (0,0), mas deslocado pela metade de sua largura/altura
+    //     const btnDrawX = -btn.width / 2;
+    //     const btnDrawY = -btn.height / 2;
+    //
+    //     ctx.shadowColor = 'black';
+    //     ctx.shadowBlur = this.buttonPlay.fontsize * 0.1;
+    //     ctx.fillStyle = this.colors.darkText;
+    //     ctx.beginPath();
+    //     ctx.roundRect(btnDrawX, btnDrawY, btn.width, btn.height, btn.cornerRadius);
+    //     ctx.fill();
+    //     ctx.shadowBlur = 0;
+    //
+    //     ctx.fillStyle = 'white';
+    //     ctx.font = `600 ${this.buttonPlay.fontsize}px "Quicksand"`;
+    //     ctx.fillText(btn.text, 0, 10);
+    //
+    //     ctx.restore();
+    //
+    //     ctx.save();
+    //
+    //     ctx.translate(this.buttonCredits.x + this.buttonCredits.width / 2, this.buttonCredits.y + this.buttonCredits.height / 2);
+    //     ctx.scale(this.buttonCredits.scale, this.buttonCredits.scale);
+    //
+    //     const btn2DrawX = -this.buttonCredits.width / 2;
+    //     const btn2DrawY = -this.buttonCredits.height / 2;
+    //
+    //     ctx.shadowColor = 'black';
+    //     ctx.shadowBlur = this.buttonPlay.fontsize * 0.1;
+    //     ctx.fillStyle = this.colors.darkText;
+    //     ctx.beginPath();
+    //     ctx.roundRect(btn2DrawX, btn2DrawY, this.buttonCredits.width, this.buttonCredits.height, this.buttonCredits.cornerRadius);
+    //     ctx.fill();
+    //     ctx.shadowBlur = 0;
+    //
+    //     ctx.fillStyle = 'white';
+    //     ctx.font = `600 ${this.buttonCredits.fontsize}px "Quicksand"`;
+    //     ctx.fillText(this.buttonCredits.text, 0, 10);
+    //
+    //     ctx.restore();
+    // }
 }
