@@ -1,7 +1,10 @@
 
 export class GamePanel {
-    constructor(colors) {
+    constructor(colors, timer, panelAssets) {
         this.colors = colors;
+        this.backgroundImage = panelAssets.panelBg;
+        this.tableImage = panelAssets.tableImg;
+        this.alimentsListImage = panelAssets.paper;
 
         this.panelRect = { x: 0, y: 0, width: 0, height: 0 };
 
@@ -12,42 +15,6 @@ export class GamePanel {
 
         this.flagsArea = { x: 0, y: 0, width: 0, height: 0 };
 
-        this.imagesLoaded = 0;
-        this.totalImages = 3;
-
-        this.loadImages();
-
-
-    }
-
-    loadImages() {
-
-        this.alimentListImage = new Image();
-
-        this.alimentListImage.onload = () => {
-            console.log(`✅ Image loaded successfully`);
-            this.imageLoaded();
-        };
-        this.alimentListImage.src = 'media/papel.svg';
-
-
-        this.tableImage = new Image();
-        this.tableImage.onload = () => {
-            console.log(`✅ Image loaded successfully`);
-            this.imageLoaded();
-        };
-        this.tableImage.src = 'media/mesa.svg';
-
-        this.backgroundImage = new Image();
-        this.backgroundImage.onload = () => {
-            console.log(`✅ Image loaded successfully`);
-            this.imageLoaded();
-        };
-        this.backgroundImage.src = 'media/piso.svg';
-    }
-
-    imageLoaded() {
-        this.imagesLoaded++;
     }
 
     resize(canvasWidth, canvasHeight, footer) {
@@ -122,7 +89,6 @@ export class GamePanel {
             height: thirdRowHeight,
             cornerRadius: 15
         };
-        console.log("table sizes are ", this.tableRect);
 
         this.alimentsListTextRect = {
             x:  this.panelRect.x + (isWider? (leftDisplayWidth + padding)  : 0),
@@ -145,9 +111,9 @@ export class GamePanel {
     draw(ctx, timer) {
 
 
+
         if (!this.panelRect.width) return;
 
-        if(this.imagesLoaded < this.totalImages) return;
 
         // --- Draw Main Panel Background ---
         ctx.save();
@@ -189,7 +155,7 @@ export class GamePanel {
             //     this.alimentsListTextRect.height, this.alimentsListTextRect.cornerRadius);
             // ctx.stroke();
 
-            ctx.drawImage(this.alimentListImage, this.alimentsListTextRect.x, this.alimentsListTextRect.y,
+            ctx.drawImage(this.alimentsListImage, this.alimentsListTextRect.x, this.alimentsListTextRect.y,
                 this.alimentsListTextRect.width, this.alimentsListTextRect.height + 10);
 
         }

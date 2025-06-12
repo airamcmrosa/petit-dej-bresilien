@@ -1,7 +1,6 @@
 export class Menu {
     constructor(colors, soundManager) {
-        this.menuPanel = {};
-        
+
         this.title = {
             fontsize: 0,
             x: 0,

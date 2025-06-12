@@ -8,7 +8,6 @@ export class EndScreen {
         this.messageFontSize = 0;
         this.scoreFontSize = 0;
         this.reasonForGameOver = null;
-        this.finalScore = 0;
         this.soundManager = soundManager;
 
         this.playAgainButton = {
@@ -20,8 +19,8 @@ export class EndScreen {
     }
     setGameOverInfo(reason) {
         this.reasonForGameOver = reason;
-        // console.log(`[EndScreen.setGameOverInfo] Score: ${this.finalScore}, Reason: ${this.reasonForGameOver}`);
     }
+
 
 
     resize(canvasWidth, canvasHeight) {
@@ -88,7 +87,6 @@ export class EndScreen {
         ctx.fillText(btn.text, textX, textY);
 
     }
-
     handleInput(x, y) {
         const btn = this.playAgainButton;
         if (btn.width &&
@@ -98,4 +96,5 @@ export class EndScreen {
             this.onRestart();
         }
     }
+
 }

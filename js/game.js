@@ -2,11 +2,16 @@ import { alimentsList } from "./alimentsList.js";
 import { HelpGame } from "./helpGame.js";
 
 export class Game {
-    constructor(onGameOverCallback, canvasWidth, canvasHeight, colors, soundManager) {
+    constructor(onGameOverCallback, canvasWidth, canvasHeight, colors, soundManager, assets) {
         this.onGameOver = onGameOverCallback;
         this.colors = colors;
         this.soundManager = soundManager;
         this.allAliments = [...alimentsList];
+        this.cardImages = {};
+
+        this.allAliments.forEach(aliment => {
+            this.cardImages[aliment.imageFile] = assets[aliment.imageFile];
+        });
         this.gameAliments = [];
         this.deckCorrectOptions = [];
         this.positionsCalculated = false;
@@ -17,85 +22,43 @@ export class Game {
 
         this.initializeGameAliments();
 
-        this.helpGame = new HelpGame(this.deckCorrectOptions, this.soundManager);
+        this.helpGame = new HelpGame(this.deckCorrectOptions, this.soundManager, assets.flag);
+        console.log("check card images", this.cardImages);
 
-        this.loadImages();
     }
 
     createDecks() {
 
         const shuffled = this.allAliments.sort(() => 0.5 - Math.random());
-        this.gameAliments = shuffled.slice(0, 12);
-        const cardAliments = [];
-        this.gameAliments.forEach((gameAliment, index) => {
-            cardAliments.push({
-                ...gameAliment, isFound: false, isCorrect: false, isHovering: false, isTranslated: false
-            });
-        });
-        this.deckCorrectOptions = cardAliments.slice(5, 10);
+        this.gameAliments = shuffled.slice(0, 12).map(aliment => ({
+            ...aliment,
+            isFound: false,
+            isCorrect: false,
+            isHovering: false,
+            isTranslated: false
+        }));
+
+        this.deckCorrectOptions = this.gameAliments.slice(5, 10);
 
         const correctIds = new Set(this.deckCorrectOptions.map(card => card.id));
 
 
-        cardAliments.forEach(card => {
+        this.gameAliments.forEach(card => {
             if (correctIds.has(card.id)) {
                 card.isCorrect = true;
             }
         });
 
-        cardAliments.sort(() => 0.5 - Math.random());
-        this.gameAliments = cardAliments;
+        this.gameAliments.sort(() => 0.5 - Math.random());
         this.deckCorrectOptions.sort(() => 0.5 - Math.random());
 
     }
 
 
     initializeGameAliments() {
-        // this.userSelectedOption = null;
-        // this.correctOption = null;
-        // this.feedbackActive = false;
-
         this.createDecks();
-
-
         this.clickedCards = [];
-        this.cardImages = {};
-        this.imagesLoaded = 0;
-        this.totalImages = this.gameAliments.length + 1;
-
-
         // this.resize(this.canvasWidth, this.canvasHeight);
-    }
-
-
-    imageLoaded() {
-        this.imagesLoaded++;
-    }
-
-    loadImages() {
-        this.gameAliments.forEach(card => {
-            const image = new Image();
-            this.cardImages[card.imageFile] = image;
-
-            image.onload = () => {
-                console.log(`✅ Image loaded successfully: ${card.imageFile}.png`);
-                this.imageLoaded();
-            };
-
-            image.onerror = () => {
-                console.error(`❌ Image not found: media/${card.imageFile}.png`);
-                image.failed = true;
-                this.imageLoaded();
-            };
-
-            image.src = `media/${card.imageFile}.png`;
-            console.log(`Attempting to load: ${image.src}`);
-        });
-
-        if (this.helpGame) {
-            this.helpGame.loadAssets(() => this.imageLoaded());
-        }
-
     }
 
     update(mousePos) {
@@ -119,9 +82,11 @@ export class Game {
         }
 
         for (const card of this.gameAliments) {
+            console.log("entered in loop");
             if (!card.isClicked &&
                 x >= card.x && x <= card.x + card.width &&
                 y >= card.y && y <= card.y + card.height) {
+                console.log("check x y");
 
 
                 card.isClicked = true;
@@ -263,45 +228,41 @@ export class Game {
 
     draw(ctx, gamePanel) {
 
-        if (this.imagesLoaded < this.totalImages) {
-            return;
-        }
-
         if (!this.positionsCalculated && gamePanel.tableRect.width > 0) {
             this.calculateLayout(ctx, gamePanel);
             this.positionsCalculated = true;
         }
 
-
-        this.gameAliments.forEach(card => {
-            const image = this.cardImages[card.imageFile];
-
-
-            if (!image || image.failed || card.x === undefined) {
-                return;
-            }
-
-            ctx.save();
-            const centerX = card.x + card.width / 2;
-            const centerY = card.y + card.height / 2;
-            ctx.translate(centerX, centerY);
-
-            if (card.isClicked) {
-                ctx.scale(0.8, 0.8);
-            } else if (card.isHovering) {
-                ctx.scale(1.1, 1.1);
-            }
-
-            ctx.translate(-centerX, -centerY);
+            this.gameAliments.forEach((card) => {
+                const image = this.cardImages[card.imageFile];
 
 
-            if (card.isFound && card.isCorrect) {
-                ctx.globalAlpha = 0.5;
-            }
+                if (!image || card.x === undefined) {
+                    return;
+                }
 
-            ctx.drawImage(image, card.x, card.y, card.width, card.height);
-            ctx.restore();
-        });
+                ctx.save();
+                const centerX = card.x + card.width / 2;
+                const centerY = card.y + card.height / 2;
+                ctx.translate(centerX, centerY);
+
+                if (card.isClicked) {
+                    ctx.scale(0.8, 0.8);
+                } else if (card.isHovering) {
+                    ctx.scale(1.1, 1.1);
+                }
+
+                ctx.translate(-centerX, -centerY);
+
+
+                if (card.isFound && card.isCorrect) {
+                    ctx.globalAlpha = 0.5;
+                }
+
+                ctx.drawImage(image, card.x, card.y, card.width, card.height);
+                ctx.restore();
+            });
+
 
         if (this.gameTextInstructions) {
             ctx.font = this.gameTextInstructions.font;
@@ -310,32 +271,6 @@ export class Game {
             ctx.textBaseline = 'top';
             ctx.fillText(this.gameTextInstructions.text, this.gameTextInstructions.x, this.gameTextInstructions.y);
         }
-
-        // if (!timer) {
-        //     console.warn("no timer")
-        //     return;
-        // }
-        //
-        // const timerDisplay = gamePanel.timeDisplayArea;
-        // // console.log(JSON.parse(JSON.stringify(timerDisplay)));
-        //
-        // if (timerDisplay.width > 0) {
-        //     const formattedTime = timer.getFormattedTime();
-        //
-        //     console.log(formattedTime);
-        //
-        //
-        //     const fontSize = timerDisplay.height * 0.6;
-        //     ctx.font = `bold ${fontSize}px 'Nunito', non-serif`;
-        //     ctx.fillStyle = this.colors.alertColor;
-        //     ctx.textAlign = 'center';
-        //     ctx.textBaseline = 'middle';
-        //
-        //     const textX = timerDisplay.x + timerDisplay.width / 2;
-        //     const textY = timerDisplay.y + timerDisplay.height / 2;
-        //
-        //     ctx.fillText(formattedTime, textX, textY);
-        // }
 
         if (this.listLayout) {
             ctx.font = this.listLayout.font;

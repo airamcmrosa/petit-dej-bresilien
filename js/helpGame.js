@@ -1,26 +1,14 @@
 export class HelpGame {
 
-    constructor(deckToManage, soundManager) {
+    constructor(deckToManage, soundManager, flag) {
         this.deck = deckToManage;
         this.soundManager = soundManager;
-        this.flagImage = null;
+        this.flagImage = flag;
         this.ctx = null;
         this.listLayout = null;
     }
 
 
-    loadAssets(onAssetLoaded) {
-        this.flagImage = new Image();
-        this.flagImage.onload = () => {
-            // console.log("✅ Flag image loaded successfully.");
-            onAssetLoaded();
-        };
-        this.flagImage.onerror = () => {
-            console.error("Failed to load flag image.");
-            onAssetLoaded();
-        };
-        this.flagImage.src = `media/brazil-flag-round-circle-icon.svg`;
-    }
 
     calculateLayout(ctx, listLayout) {
 

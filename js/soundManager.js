@@ -43,7 +43,6 @@ export class SoundManager {
         }
     }
 
-    // --- NOVOS MÉTODOS PARA MÚSICA DE FUNDO ---
     toggleBackgroundMusic() {
         if (!this.backgroundMusic) return;
 
