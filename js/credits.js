@@ -1,35 +1,83 @@
 export class Credits {
-    constructor(colors, soundManager) {
+    constructor(colors, onReturn, soundManager) {
         this.colors = colors;
+        this.onReturn = onReturn;
         this.soundManager = soundManager;
-        this.creditsPanel = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15, scale: 0 };
-        this.title1 = {text: "", fontsize:0, x:0, y: 0, width: 0, height: 0, scale: 0 };
-        this.title2 = {text: "", fontsize:0, x:0, y: 0, width: 0, height: 0, scale: 0 };
-        this.subtitle = {text: "", fontsize:0, x:0, y: 0, width: 0, height: 0, scale: 0 };
-        this.btnReturn = {};
-
+        this.creditsPanel = { x: 0, y: 0, width: 0, height: 0, cornerRadius: 15 };
+        this.title1 = {text: "Crédits", fontsize:0, x:0, y: 0, width: 0, height: 0 };
+        this.title2 = {text: "Images & Sons", fontsize:0, x:0, y: 0, width: 0, height: 0};
+        this.subtitle = {text: "Vecteezy", fontsize:0, x:0, y: 0, width: 0, height: 0};
+        this.subtitle2 = {text: "PixBay", fontsize:0, x:0, y: 0, width: 0, height: 0};
+        this.btnReturn = {text: "Retourner", x: 0, y: 0, width: 0, height: 0, cornerRadius: 15};
         this.animationTimer = 0;
         this.animationDuration = 1.2;
     }
 
-    resize (canvasWidth, canvasHeight) {
-        const isWider = canvasWidth > canvasHeight;
-        const padding = {side: canvasWidth * (isWider? 0.04 : 0.02), top: canvasHeight * (isWider? 0.05 : 0.025)}
-        this.creditsPanel.width = canvasWidth/2 - (padding.side * 2);
-        this.creditsPanel.height = canvasHeight/2 - (padding.top * 2) ;
+    resize(ctx, canvasWidth, canvasHeight) {
 
-        this.title1.fontsize = Math.max(36, canvasWidth / 22);
-        this.title2.fontsize = Math.max(32, canvasWidth / 26);
+        const panelWidth = Math.max(canvasWidth * 0.8, 350);
+        const panelHeight = Math.max(canvasHeight * 0.6, 450);
 
-        this.subtitle.fontsize = Math.max(24, this.title2.fontsize * 0.8);
 
-        this.btnReturn.fontsize = Math.max(20, canvasWidth / 35);
+        this.title1.fontsize = Math.max(32, panelWidth / 15);
+        this.title2.fontsize = Math.max(21, panelWidth / 18);
+        this.subtitle.fontsize = Math.max(20, panelWidth / 25);
+        this.btnReturn.fontsize = Math.max(18, panelWidth / 22);
 
+        const padding = panelHeight * 0.1;
+        this.creditsPanel = {
+            ...this.creditsPanel,
+            width: panelWidth,
+            height: panelHeight - padding,
+            x: canvasWidth / 2 - panelWidth / 2,
+            y: canvasHeight / 2 - panelHeight / 2 - padding,
+        };
+        let currentY = this.creditsPanel.y + padding;
+
+        this.title1.width = ctx.measureText(this.title1.text);
+
+        this.title1 = {
+            ... this.title1,
+            x : this.creditsPanel.x + (this.creditsPanel.width / 2),
+            y : currentY
+        };
+
+        currentY += this.title1.fontsize + padding / 2;
+
+        this.title2.x = this.creditsPanel.x + this.creditsPanel.width / 2;
+        this.title2.y = currentY;
+        currentY += this.title2.fontsize + padding;
+
+        this.subtitle.x = this.creditsPanel.x + this.creditsPanel.width / 2;
+        this.subtitle.y = currentY;
+        currentY += this.subtitle.fontsize + padding;
+
+        this.subtitle2 = {
+            ...this.subtitle2,
+            x: this.subtitle.x,
+            y: currentY
+        }
+
+        const btnWidth = panelWidth * 0.7;
+        const btnHeight = Math.max(50, panelHeight * 0.15);
+        this.btnReturn = {
+            ...this.btnReturn,
+            width: btnWidth,
+            height: btnHeight,
+            x: this.creditsPanel.x + (this.creditsPanel.width / 2) - (btnWidth/2),
+            y: this.creditsPanel.y + this.creditsPanel.height + padding,
+        };
+        console.log("resize end credits");
     }
-
     startAnimation() {
+
         this.animationTimer = 0;
         this.creditsPanel.scale = 0;
+        this.title1.scale = 0;
+        this.title2.scale = 0;
+        this.subtitle.scale = 0;
+        this.subtitle2.scale = 0;
+        this.btnReturn.scale = 0;
     }
 
     easeOutBack(x) {
@@ -43,18 +91,43 @@ export class Credits {
 
         this.animationTimer += deltaTime;
 
-        const creditsStartTime = 0.1;
         const title1StartTime = 0.1;
-        const title2StartTime = 0.2;
-        const subtitleStartTime = 0.2;
-        const creditsPanelStartTime = 0.2;
-        const btnStartTime = 0.2;
+        const title2StartTime = 0.5;
+        const subtitleStartTime = 0.5;
+        const subtitle2StartTime = 0.5;
+        const panelStartTime = 0.4;
+        const btnStartTime = 0.6;
 
 
-        if (this.animationTimer > creditsStartTime) {
-            const progress = (this.animationTimer - creditsStartTime) / 0.5;
+        if (this.animationTimer > panelStartTime) {
+            const progress = (this.animationTimer - panelStartTime) / 0.6;
             this.creditsPanel.scale = this.easeOutBack(Math.min(1.0, progress));
         }
+
+        if (this.animationTimer > title1StartTime) {
+            const progress = (this.animationTimer - title1StartTime) / 0.5;
+            this.title1.scale = this.easeOutBack(Math.min(1.0, progress));
+        }
+
+        if (this.animationTimer > title2StartTime) {
+            const progress = (this.animationTimer - title2StartTime) / 0.5;
+            this.title2.scale = this.easeOutBack(Math.min(1.0, progress));
+        }
+
+        if (this.animationTimer > subtitleStartTime) {
+            const progress = (this.animationTimer - subtitleStartTime) / 0.5;
+            this.subtitle.scale = this.easeOutBack(Math.min(1.0, progress));
+        }
+        if (this.animationTimer > subtitle2StartTime) {
+            const progress = (this.animationTimer - subtitle2StartTime) / 0.5;
+            this.subtitle2.scale = this.easeOutBack(Math.min(1.0, progress));
+        }
+
+        if (this.animationTimer > btnStartTime) {
+            const progress = (this.animationTimer - btnStartTime) / 0.5;
+            this.btnReturn.scale = this.easeOutBack(Math.min(1.0, progress));
+        }
+
     }
 
     draw(ctx) {
@@ -66,19 +139,27 @@ export class Credits {
         this.drawText(ctx, this.title2, `600 ${this.title2.fontsize}px "Dancing Script"`, this.colors.alertColor);
 
         this.drawText(ctx, this.subtitle, `500 ${this.subtitle.fontsize}px "Quicksand"`, this.colors.borderColor);
+        this.drawText(ctx, this.subtitle2, `500 ${this.subtitle.fontsize}px "Quicksand"`, this.colors.borderColor);
 
         this.drawButton(ctx, this.btnReturn);
+
     }
 
-    drawPanel(ctx, Object) {
+    drawPanel(ctx, panel) {
         ctx.save();
+        ctx.translate(panel.x + panel.width / 2, panel.y + panel.height / 2);
+        ctx.scale(panel.scale, panel.scale);
         ctx.fillStyle = this.colors.overlay;
-        ctx.translate(Object.x, Object.y);
-        ctx.scale(Object.scale, Object.scale);
+        ctx.shadowColor = 'black';
+        ctx.shadowBlur = 25;
+        ctx.beginPath();
+        ctx.roundRect(-panel.width / 2, -panel.height / 2, panel.width, panel.height, panel.cornerRadius);
+        ctx.fill();
         ctx.restore();
-    }
 
+    }
     drawText(ctx, textObject, font, color) {
+        if (textObject.scale === 0) return;
         ctx.save();
         ctx.fillStyle = color;
         ctx.font = font;
@@ -88,17 +169,18 @@ export class Credits {
         ctx.scale(textObject.scale, textObject.scale);
         ctx.fillText(textObject.text, 0, 0);
         ctx.restore();
+        console.log("draewtext end credits");
     }
 
-    drawButton(ctx, buttonObject) {
+    drawButton(ctx, btnReturn) {
         ctx.save();
-        ctx.translate(buttonObject.x + buttonObject.width / 2, buttonObject.y + buttonObject.height / 2);
-        ctx.scale(buttonObject.scale, buttonObject.scale);
-        const btnDrawX = -buttonObject.width / 2;
-        const btnDrawY = -buttonObject.height / 2;
+        ctx.translate(btnReturn.x + btnReturn.width / 2, btnReturn.y + btnReturn.height / 2);
+        ctx.scale(btnReturn.scale, btnReturn.scale);
+        const btnDrawX = -btnReturn.width / 2;
+        const btnDrawY = -btnReturn.height / 2;
         ctx.shadowColor = 'white';
-        ctx.shadowBlur = buttonObject.fontsize * 0.15;
-        const gradient = ctx.createLinearGradient(0, btnDrawY, 0, btnDrawY + buttonObject.height);
+        ctx.shadowBlur = btnReturn.fontsize * 0.15;
+        const gradient = ctx.createLinearGradient(0, btnDrawY, 0, btnDrawY + btnReturn.height);
 
         // 2. Adiciona as "paradas de cor". 0 é o início (topo), 1 é o fim (base).
         // Usaremos duas cores do seu tema para criar o efeito.
@@ -107,18 +189,31 @@ export class Credits {
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.roundRect(btnDrawX, btnDrawY, buttonObject.width, buttonObject.height, buttonObject.cornerRadius);
+        ctx.roundRect(btnDrawX, btnDrawY, btnReturn.width, btnReturn.height, btnReturn.cornerRadius);
         ctx.fill();
         ctx.shadowColor = this.colors.darkText;
         ctx.shadowBlur = 5;
         ctx.fillStyle = 'white';
 
-        ctx.font = `900 ${buttonObject.fontsize}px "Quicksand"`;
+        ctx.font = `900 ${btnReturn.fontsize}px "Quicksand"`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(buttonObject.text.toUpperCase(), 0, 0);
+        ctx.fillText(btnReturn.text.toUpperCase(), 0, 0);
         ctx.restore();
     }
+
+
+
+    handleInput(x, y) {
+        if (this.btnReturn.width && x >= this.btnReturn.x && x <= this.btnReturn.x + this.btnReturn.width &&
+            y >= this.btnReturn.y && y <= this.btnReturn.y + this.btnReturn.height) {
+            if (this.soundManager) this.soundManager.playEffect('click');
+            if (this.onReturn) this.onReturn(); // Chama a função de retorno
+        }
+    }
+
+
+
 
 
 }

@@ -1,5 +1,11 @@
 export class Menu {
-    constructor(colors, soundManager) {
+    constructor(colors, soundManager, menuAssets) {
+
+        this.menuImage = {
+            image: menuAssets.backImg
+        };
+
+        this.bannerSubtitle = {x:0, y:0 ,width: 0, height: 0, scale:0, image: menuAssets.banner};
 
         this.title = {
             fontsize: 0,
@@ -57,20 +63,33 @@ export class Menu {
         this.animationTimer = 0;
         this.title.scale = 0;
         this.subtitle.scale = 0;
+        this.bannerSubtitle.scale = 0;
         this.buttonPlay.scale = 0;
         this.buttonCredits.scale = 0;
     }
 
     resize(canvasWidth, canvasHeight) {
 
-        this.title.fontsize = Math.max(36, canvasWidth / 22);
 
-        this.subtitle.fontsize = Math.max(24, this.title.fontsize * 0.8);
+        this.title.fontsize = Math.min(85, canvasWidth / 7);
 
         const buttonFontSize = Math.max(20, canvasWidth / 35);
         this.buttonPlay.fontsize = buttonFontSize;
         this.buttonCredits.fontsize = buttonFontSize;
 
+
+        this.menuImage = {
+            ...this.menuImage,
+            width: canvasWidth,
+            height: canvasHeight
+
+        }
+
+        const bannerMaxWidth = 550;
+
+        const bannerWidth = Math.min(canvasWidth * 0.5, bannerMaxWidth);
+        const bannerAspectRatio = this.bannerSubtitle.image.naturalHeight / this.bannerSubtitle.image.naturalWidth;
+        const bannerHeight = bannerWidth * bannerAspectRatio;
 
         const isWider = canvasWidth > canvasHeight;
 
@@ -82,24 +101,28 @@ export class Menu {
 
 
         if (isWider) {
-            btnWidth = Math.min(canvasWidth * 0.4, 400);
+            btnWidth = Math.min(canvasWidth * 0.4, 450);
             btnHeight = Math.min(availableHeight * 0.12, 90);
         } else {
-            btnWidth = Math.min(canvasWidth * 0.75, 320);
+            btnWidth = Math.min(canvasWidth * 0.75, 360);
             btnHeight = Math.min(availableHeight * 0.1, 80);
         }
 
         const verticalPadding = canvasHeight * 0.03;
-        let currentY = canvasHeight / 2 - (this.title.fontsize + this.subtitle.fontsize + btnHeight * 2 + verticalPadding * 3) / 2;
+        let currentY = canvasHeight / 2 - (this.title.fontsize + bannerHeight + btnHeight * 2 + verticalPadding * 2 + topMargin *2) / 2;
 
         this.title.x = canvasWidth / 2;
         this.title.y = currentY;
-        currentY += this.title.fontsize + verticalPadding / 2;
+        currentY += this.title.fontsize;
 
-
-        this.subtitle.x = canvasWidth / 2;
-        this.subtitle.y = currentY;
-        currentY += this.subtitle.fontsize + verticalPadding * 1.5;
+        this.bannerSubtitle = {
+            ...this.bannerSubtitle,
+            x: canvasWidth / 2 - (bannerWidth/2),
+            y: currentY - verticalPadding,
+            width: bannerWidth,
+            height: bannerHeight
+        };
+        currentY += bannerHeight + verticalPadding * 1.5;
 
         this.buttonPlay = {
             ...this.buttonPlay,
@@ -136,7 +159,7 @@ export class Menu {
 
         // Define os tempos para cada parte da animação
         const titleStartTime = 0.1;
-        const subtitleStartTime = 0.4;
+        const bannerSubtitleStartTime = 0.4;
         const buttonStartTime = 0.7;
         const buttonCreditsStartTime = 0.7;
 
@@ -146,10 +169,10 @@ export class Menu {
             this.title.scale = this.easeOutBack(Math.min(1.0, progress));
         }
 
-        // Animação do Subtítulo
-        if (this.animationTimer > subtitleStartTime) {
-            const progress = (this.animationTimer - subtitleStartTime) / 0.5;
-            this.subtitle.scale = this.easeOutBack(Math.min(1.0, progress));
+        // Animação do banenr subtitle
+        if (this.animationTimer > bannerSubtitleStartTime) {
+            const progress = (this.animationTimer - bannerSubtitleStartTime) / 0.5;
+            this.bannerSubtitle.scale = this.easeOutBack(Math.min(1.0, progress));
         }
 
         // Animação do Botão
@@ -166,13 +189,41 @@ export class Menu {
     draw(ctx) {
         if (!this.buttonPlay.width) return;
 
+        if (this.menuImage.image && this.menuImage.image.complete && this.menuImage.image.naturalWidth > 0) {
+            ctx.drawImage(this.menuImage.image, 0, 0, this.menuImage.width, this.menuImage.height);
+        }
+
+        this.drawSubtitleComponent(ctx);
+
         this.drawText(ctx, this.title, `800 ${this.title.fontsize}px "Dancing Script"`, this.colors.alertColor);
 
 
-        this.drawText(ctx, this.subtitle, `500 ${this.subtitle.fontsize}px "Quicksand"`, this.colors.borderColor);
-
         this.drawButton(ctx, this.buttonPlay);
         this.drawButton(ctx, this.buttonCredits);
+    }
+
+    drawSubtitleComponent(ctx) {
+        const sub = this.bannerSubtitle;
+        if (!sub.width || sub.scale === 0) return;
+
+        ctx.save();
+        // Move a origem para o centro do banner para a animação de escala
+        ctx.translate(sub.x + sub.width / 2, sub.y + sub.height / 2);
+        ctx.scale(sub.scale, sub.scale);
+
+        // 1. Desenha a imagem do banner na origem (0,0) transladada
+        if (sub.image && sub.image.complete) {
+            ctx.drawImage(sub.image, -sub.width / 2, -sub.height / 2, sub.width, sub.height);
+        }
+        //
+        // // 2. Desenha o texto por cima do banner
+        // ctx.fillStyle = this.colors.darkText; // Cor escura para bom contraste
+        // ctx.font = `500 ${sub.fontsize}px "Quicksand"`;
+        // ctx.textAlign = 'center';
+        // ctx.textBaseline = 'middle';
+        // ctx.fillText(sub.text, 0, 0); // Desenha no centro do banner
+
+        ctx.restore();
     }
 
     drawText(ctx, textObject, font, color) {

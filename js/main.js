@@ -2,6 +2,7 @@ import { AssetLoader } from "./assetLoader.js";
 import { alimentsList } from './alimentsList.js';
 import {Footer} from "./footer.js";
 import { Menu } from './menu.js';
+import { Credits} from "./credits.js";
 import {Game} from "./game.js";
 import {GamePanel} from "./gamePanel.js";
 import {SoundManager} from "./soundManager.js";
@@ -15,6 +16,8 @@ window.onload = function() {
     let gameState = 'loading';
 
     const interfaceAssets = [
+        {id: 'menuImage', src: 'media/backMenuImage.jpeg'},
+        {id: 'banner', src: 'media/bannerbr.png'},
         {id: 'flag', src: 'media/brazil-flag-round-circle-icon.svg'},
         {id: 'panelBg', src: 'media/piso.svg'},
         {id: 'table', src: 'media/mesa.svg'},
@@ -55,7 +58,7 @@ window.onload = function() {
         'music-toggle-btn'
     );
 
-    let menu, gamePanel, game, endScreen;
+    let menu, credits, gamePanel, game, endScreen;
 
     const timer = new Timer(60, (reason) => {
         console.log("Time's up! Game Over. Reason:", reason);
@@ -64,6 +67,13 @@ window.onload = function() {
         endScreen.setGameOverInfo(reason);
         resize();
     });
+
+    function returnToMenu() {
+        console.log("Retornando ao menu...");
+        gameState = 'menu'; // Muda o estado do jogo de volta para o menu
+        menu.startAnimation(); // Reinicia a animação do menu
+        resize(); // Garante que o layout do menu está correto
+    }
 
     assetLoader.loadAll(() => {
         // --- ESTA FUNÇÃO SÓ SERÁ CHAMADA QUANDO TUDO ESTIVER PRONTO ---
@@ -75,9 +85,13 @@ window.onload = function() {
             paper: assetLoader.getAsset('paper')
         };
 
+        const menuAssets = {
+          backImg: assetLoader.getAsset('menuImage'), banner: assetLoader.getAsset('banner'),
+        };
+
 
         gamePanel = new GamePanel(colors, timer, panelAssets);
-        menu = new Menu(colors, soundManager);
+        menu = new Menu(colors, soundManager, menuAssets);
         endScreen = new EndScreen(colors, startGame, soundManager);
 
 
@@ -95,6 +109,8 @@ window.onload = function() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        footer.resize(canvas.width, canvas.height);
+
 
 
         if(gameState === 'loading') {
@@ -102,6 +118,8 @@ window.onload = function() {
         } else if (gameState === 'menu') {
             console.log("resize ok em", gameState)
             menu.resize(canvas.width, canvas.height);
+        } else if (gameState === 'credits') {
+            credits.resize(ctx, canvas.width, canvas.height);
         } else if (gameState === 'playing' && game) {
             if (footer.footerArea) {
                 gamePanel.resize(canvas.width, canvas.height, footer);
@@ -143,6 +161,12 @@ window.onload = function() {
         resize();
     }
 
+    function startCredits() {
+        gameState = 'credits';
+        credits = new Credits(colors, returnToMenu, soundManager);
+        resize();
+    }
+
 
     function isClickInside(button, x, y) {
         if (!button || !button.width) return false;
@@ -157,6 +181,8 @@ window.onload = function() {
     }
 
     canvas.addEventListener('mousemove', updateMousePosition);
+
+
 
     function handleInteraction(event) {
 
@@ -184,6 +210,13 @@ window.onload = function() {
                 });
                 startGame(assetsForGame);
             }
+            if (menu.buttonCredits && menu.buttonCredits.width && isClickInside(menu.buttonCredits, mouseX, mouseY)) {
+                if (soundManager) soundManager.playEffect('click');
+                startCredits();
+            }
+
+        } else if (gameState === 'credits') {
+          credits.handleInput(mouseX, mouseY);
         } else if (gameState === 'playing' && game) {
                 game.handleInput(mouseX, mouseY);
         } else if (gameState === 'gameOver') {
@@ -210,7 +243,7 @@ window.onload = function() {
             ctx.fillStyle = colors.backgroundColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            footer.draw(ctx);
+
 
             if (gameState === 'loading') {
                 ctx.fillStyle = colors.darkText;
@@ -223,6 +256,8 @@ window.onload = function() {
 
                 menu.update(deltaTime);
                 menu.draw(ctx);
+            } else if(gameState ==='credits') {
+                credits.draw(ctx);
             } else if (gameState === 'playing' && game) {
 
                 game.update(mousePos);
@@ -241,6 +276,7 @@ window.onload = function() {
 
 
             }
+            footer.draw(ctx);
 
             lastTime = performance.now();
             requestAnimationFrame(animate);
