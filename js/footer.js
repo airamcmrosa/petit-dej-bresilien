@@ -44,7 +44,6 @@ export class Footer {
     }
     handleInput(x, y) {
 
-        console.log('Footer clicado!');
         window.location.href = this.homepageUrl;
     }
 

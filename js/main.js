@@ -61,15 +61,13 @@ window.onload = function() {
     let menu, credits, gamePanel, game, endScreen;
 
     const timer = new Timer(60, (reason) => {
-        console.log("Time's up! Game Over. Reason:", reason);
-
         gameState = 'gameOver';
         endScreen.setGameOverInfo(reason);
         resize();
     });
 
     function returnToMenu() {
-        console.log("Retornando ao menu...");
+
         gameState = 'menu'; // Muda o estado do jogo de volta para o menu
         menu.startAnimation(); // Reinicia a animação do menu
         resize(); // Garante que o layout do menu está correto
@@ -77,7 +75,7 @@ window.onload = function() {
 
     assetLoader.loadAll(() => {
         // --- ESTA FUNÇÃO SÓ SERÁ CHAMADA QUANDO TUDO ESTIVER PRONTO ---
-        console.log("Todos os assets foram carregados. Iniciando o menu.");
+
 
         const panelAssets = {
             panelBg: assetLoader.getAsset('panelBg'),
@@ -116,7 +114,6 @@ window.onload = function() {
         if(gameState === 'loading') {
             footer.resize(canvas.width, canvas.height);
         } else if (gameState === 'menu') {
-            console.log("resize ok em", gameState)
             menu.resize(canvas.width, canvas.height);
         } else if (gameState === 'credits') {
             credits.resize(ctx, canvas.width, canvas.height);
@@ -138,7 +135,7 @@ window.onload = function() {
     resize();
 
     function startGame() {
-        console.log("start game running!");
+
         const assetsForGame = {
             flag: assetLoader.getAsset('flag')
         };
@@ -148,7 +145,6 @@ window.onload = function() {
 
         timer.start();
         game = new Game((reason) => {
-            console.log("Callback de fim de jogo chamado!");
             gameState = 'gameOver';
             timer.stop()
             if (endScreen) {

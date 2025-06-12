@@ -169,7 +169,6 @@ export class Credits {
         ctx.scale(textObject.scale, textObject.scale);
         ctx.fillText(textObject.text, 0, 0);
         ctx.restore();
-        console.log("draewtext end credits");
     }
 
     drawButton(ctx, btnReturn) {
@@ -208,7 +207,7 @@ export class Credits {
         if (this.btnReturn.width && x >= this.btnReturn.x && x <= this.btnReturn.x + this.btnReturn.width &&
             y >= this.btnReturn.y && y <= this.btnReturn.y + this.btnReturn.height) {
             if (this.soundManager) this.soundManager.playEffect('click');
-            if (this.onReturn) this.onReturn(); // Chama a função de retorno
+            if (this.onReturn) this.onReturn();
         }
     }
 

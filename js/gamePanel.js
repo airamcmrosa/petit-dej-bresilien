@@ -24,12 +24,10 @@ export class GamePanel {
         const isWider = canvasWidth > canvasHeight;
         const topMargin = canvasHeight * (isWider? 0.05 : 0.025);
         const padding = canvasWidth * (isWider? 0.04 : 0.02);
-        this.panelRect.width = canvasWidth - padding * (isWider? 2 : 0);
+        this.panelRect.width = canvasWidth;
         this.panelRect.height = canvasHeight - topMargin - footer.footerArea.height;
         this.panelRect.x = 0;
         this.panelRect.y = topMargin * 2;
-
-        console.log("footer height are", footer.footerArea.height);
 
 
 
@@ -38,7 +36,6 @@ export class GamePanel {
 
         const rightDisplayWidth = this.panelRect.width * (isWider? (1/3) : 1);
         const leftDisplayWidth = this.panelRect.width - rightDisplayWidth - padding;
-        console.log("display sizes are ", rightDisplayWidth, leftDisplayWidth, "top margin are", topMargin, "padding is ", padding);
 
         let secondRowY =  topRowY + topRowHeight + (topMargin / 2);
         let secondHowHeight = this.panelRect.height * (isWider? (1/8) : (1/10)) ;
@@ -173,12 +170,9 @@ export class GamePanel {
 
 
             const timerDisplay = this.timeDisplayArea;
-            // console.log(JSON.parse(JSON.stringify(timerDisplay)));
 
             if (timerDisplay.width > 0) {
                 const formattedTime = timer.getFormattedTime();
-
-                console.log(formattedTime);
 
 
                 const fontSize = timerDisplay.height * 0.6;

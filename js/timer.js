@@ -21,7 +21,7 @@ export class Timer {
         this.isRunning = true;
         this.lastTime = performance.now(); // Use a high-precision timestamp.
         this.remainingTime = this.duration; // Reset to full duration on start.
-        console.log("Timer started!");
+
     }
 
     /**
@@ -29,7 +29,6 @@ export class Timer {
      */
     stop() {
         this.isRunning = false;
-        console.log("Timer stopped.");
     }
 
     /**

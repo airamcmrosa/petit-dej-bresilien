@@ -132,7 +132,6 @@ export class Menu {
             height: btnHeight
         }
         currentY += btnHeight + verticalPadding;
-        console.log("tam btn2:", this.buttonPlay.width);
 
         this.buttonCredits = {
             ...this.buttonCredits,
@@ -141,7 +140,6 @@ export class Menu {
             width: btnWidth,
             height: btnHeight
         }
-        console.log("tam btn2:", this.buttonCredits.width);
 
 
     }
